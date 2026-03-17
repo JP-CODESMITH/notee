@@ -1,14 +1,20 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
-import { Link } from "expo-router";
-import React, { useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { Checkbox } from "react-native-paper";
-import Animated from "react-native-reanimated";
-import RenderHTML from "react-native-render-html";
-import { SafeAreaView } from "react-native-safe-area-context";
-import direction from "../../assets/images/Direction.png";
-import illustration from "../../assets/images/Illustration.png";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { Link } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  FlatList,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Checkbox } from 'react-native-paper';
+import RenderHTML from 'react-native-render-html';
+import { SafeAreaView } from 'react-native-safe-area-context'; // @ts-ignore
+import direction from '../../assets/images/Direction.png'; // @ts-ignore
+import illustration from '../../assets/images/Illustration.png';
 
 export default function HomeScreen() {
   const [notes, setNotes] = useState<any[]>([]);
@@ -17,114 +23,113 @@ export default function HomeScreen() {
 
   const toggleSelect = (id: string) => {
     setSelectedNotes((prev) =>
-      prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id],
     );
   };
 
   const toggleSelectPin = (id: string) => {
     setSelectedPins((prev) =>
-      prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id],
     );
   };
 
   const deleteSelected = async () => {
-    const dbString = await AsyncStorage.getItem("notesDB");
+    const dbString = await AsyncStorage.getItem('notesDB');
     const db = dbString ? JSON.parse(dbString) : {};
 
     const updated = notes.filter((n) => !selectedNotes.includes(n.id));
 
-    db.idea = updated.filter((n) => (n.type || n.category) === "idea");
-    db.buying = updated.filter((n) => (n.type || n.category) === "buying");
-    db.routine = updated.filter((n) => (n.type || n.category) === "routine");
-    db.goals = updated.filter((n) => (n.type || n.category) === "goals");
-    db.guidance = updated.filter((n) => (n.type || n.category) === "guidance");
+    db.idea = updated.filter((n) => (n.type || n.category) === 'idea');
+    db.buying = updated.filter((n) => (n.type || n.category) === 'buying');
+    db.routine = updated.filter((n) => (n.type || n.category) === 'routine');
+    db.goals = updated.filter((n) => (n.type || n.category) === 'goals');
+    db.guidance = updated.filter((n) => (n.type || n.category) === 'guidance');
 
     setNotes(updated);
     setSelectedNotes([]);
-    await AsyncStorage.setItem("notesDB", JSON.stringify(db));
+    await AsyncStorage.setItem('notesDB', JSON.stringify(db));
   };
 
   const deleteSelectedPin = async () => {
-    const dbString = await AsyncStorage.getItem("notesDB");
+    const dbString = await AsyncStorage.getItem('notesDB');
     const db = dbString ? JSON.parse(dbString) : {};
 
     const updated = notes.filter((n) => !selectedPins.includes(n.id));
 
-    db.idea = updated.filter((n) => (n.type || n.category) === "idea");
-    db.buying = updated.filter((n) => (n.type || n.category) === "buying");
-    db.routine = updated.filter((n) => (n.type || n.category) === "routine");
-    db.goals = updated.filter((n) => (n.type || n.category) === "goals");
-    db.guidance = updated.filter((n) => (n.type || n.category) === "guidance");
+    db.idea = updated.filter((n) => (n.type || n.category) === 'idea');
+    db.buying = updated.filter((n) => (n.type || n.category) === 'buying');
+    db.routine = updated.filter((n) => (n.type || n.category) === 'routine');
+    db.goals = updated.filter((n) => (n.type || n.category) === 'goals');
+    db.guidance = updated.filter((n) => (n.type || n.category) === 'guidance');
 
     setNotes(updated);
     setSelectedPins([]);
-    await AsyncStorage.setItem("notesDB", JSON.stringify(db));
+    await AsyncStorage.setItem('notesDB', JSON.stringify(db));
   };
 
   const pinSelected = async () => {
-    const dbString = await AsyncStorage.getItem("notesDB");
+    const dbString = await AsyncStorage.getItem('notesDB');
     const db = dbString ? JSON.parse(dbString) : {};
 
     const updated = notes.map((n) =>
-      selectedNotes.includes(n.id) ? { ...n, pin: true } : n
+      selectedNotes.includes(n.id) ? { ...n, pin: true } : n,
     );
 
-    db.idea = updated.filter((n) => (n.type || n.category) === "idea");
-    db.buying = updated.filter((n) => (n.type || n.category) === "buying");
-    db.routine = updated.filter((n) => (n.type || n.category) === "routine");
-    db.goals = updated.filter((n) => (n.type || n.category) === "goals");
-    db.guidance = updated.filter((n) => (n.type || n.category) === "guidance");
+    db.idea = updated.filter((n) => (n.type || n.category) === 'idea');
+    db.buying = updated.filter((n) => (n.type || n.category) === 'buying');
+    db.routine = updated.filter((n) => (n.type || n.category) === 'routine');
+    db.goals = updated.filter((n) => (n.type || n.category) === 'goals');
+    db.guidance = updated.filter((n) => (n.type || n.category) === 'guidance');
 
     setNotes(updated);
     setSelectedNotes([]);
-    await AsyncStorage.setItem("notesDB", JSON.stringify(db));
+    await AsyncStorage.setItem('notesDB', JSON.stringify(db));
   };
 
   const pinSelectedPin = async () => {
-    const dbString = await AsyncStorage.getItem("notesDB");
+    const dbString = await AsyncStorage.getItem('notesDB');
     const db = dbString ? JSON.parse(dbString) : {};
 
     const updated = notes.map((n) =>
-      selectedPins.includes(n.id) ? { ...n, pin: false } : n
+      selectedPins.includes(n.id) ? { ...n, pin: false } : n,
     );
 
-    db.idea = updated.filter((n) => (n.type || n.category) === "idea");
-    db.buying = updated.filter((n) => (n.type || n.category) === "buying");
-    db.routine = updated.filter((n) => (n.type || n.category) === "routine");
-    db.goals = updated.filter((n) => (n.type || n.category) === "goals");
-    db.guidance = updated.filter((n) => (n.type || n.category) === "guidance");
-
+    db.idea = updated.filter((n) => (n.type || n.category) === 'idea');
+    db.buying = updated.filter((n) => (n.type || n.category) === 'buying');
+    db.routine = updated.filter((n) => (n.type || n.category) === 'routine');
+    db.goals = updated.filter((n) => (n.type || n.category) === 'goals');
+    db.guidance = updated.filter((n) => (n.type || n.category) === 'guidance');
     setNotes(updated);
     setSelectedPins([]);
-    await AsyncStorage.setItem("notesDB", JSON.stringify(db));
+    await AsyncStorage.setItem('notesDB', JSON.stringify(db));
   };
 
   const finishedNote = async () => {
-    const dbString = await AsyncStorage.getItem("notesDB");
+    const dbString = await AsyncStorage.getItem('notesDB');
     const db = dbString ? JSON.parse(dbString) : {};
 
     const updated = notes.map((n) =>
       selectedNotes.includes(n.id) || selectedPins.includes(n.id)
         ? { ...n, finished: true }
-        : n
+        : n,
     );
 
-    db.idea = updated.filter((n) => (n.type || n.category) === "idea");
-    db.buying = updated.filter((n) => (n.type || n.category) === "buying");
-    db.routine = updated.filter((n) => (n.type || n.category) === "routine");
-    db.goals = updated.filter((n) => (n.type || n.category) === "goals");
-    db.guidance = updated.filter((n) => (n.type || n.category) === "guidance");
+    db.idea = updated.filter((n) => (n.type || n.category) === 'idea');
+    db.buying = updated.filter((n) => (n.type || n.category) === 'buying');
+    db.routine = updated.filter((n) => (n.type || n.category) === 'routine');
+    db.goals = updated.filter((n) => (n.type || n.category) === 'goals');
+    db.guidance = updated.filter((n) => (n.type || n.category) === 'guidance');
 
     setNotes(updated);
     setSelectedNotes([]);
     setSelectedPins([]);
-    await AsyncStorage.setItem("notesDB", JSON.stringify(db));
+    await AsyncStorage.setItem('notesDB', JSON.stringify(db));
   };
 
   useFocusEffect(
     React.useCallback(() => {
       const loadNotes = async () => {
-        const dbString = await AsyncStorage.getItem("notesDB");
+        const dbString = await AsyncStorage.getItem('notesDB');
         if (dbString) {
           const db = JSON.parse(dbString);
           setNotes([
@@ -140,10 +145,10 @@ export default function HomeScreen() {
           setNotes([]);
         }
       };
-
+      // @ts-ignore
       loadNotes();
       return () => {};
-    }, [])
+    }, []),
   );
 
   const toggleTodo = async (noteId: string, todoId: string) => {
@@ -152,7 +157,7 @@ export default function HomeScreen() {
         return {
           ...n,
           rich: n.rich.map((t: any) =>
-            t.id === todoId ? { ...t, checked: !t.checked } : t
+            t.id === todoId ? { ...t, checked: !t.checked } : t,
           ),
         };
       }
@@ -161,64 +166,64 @@ export default function HomeScreen() {
 
     setNotes(updated);
 
-    const dbString = await AsyncStorage.getItem("notesDB");
+    const dbString = await AsyncStorage.getItem('notesDB');
     if (dbString) {
       const db = JSON.parse(dbString);
       const note = updated.find((n) => n.id === noteId);
 
       if (note) {
-        const category = note.type || note.category || "idea";
+        const category = note.type || note.category || 'idea';
         db[category] = updated.filter(
-          (n) => (n.type || n.category) === category
+          (n) => (n.type || n.category) === category,
         );
-        await AsyncStorage.setItem("notesDB", JSON.stringify(db));
+        await AsyncStorage.setItem('notesDB', JSON.stringify(db));
       }
     }
   };
 
   const pinnedNotes = notes.filter(
-    (item) => item.pin === true && item.finished === false
+    (item) => item.pin === true && item.finished === false,
   );
   const regularNotes = notes.filter(
-    (item) => item.finished === false && item.pin === false
+    (item) => item.finished === false && item.pin === false,
   );
   const pinnedCount = pinnedNotes.length;
   const regularCount = regularNotes.length;
 
   const getBackground = (color: string) => {
     switch (color) {
-      case "#C8C5CB":
-        return "#4B5563";
-      case "#EFE9F7":
-        return "#6A3EA1";
-      case "#F7DEE3":
-        return "#BE185D";
-      case "#DAF6E4":
-        return "#059669";
-      case "#FDEBAB":
-        return "#CA8A04";
-      case "#F7F6D4":
-        return "#A16207";
-      case "#EFEEF0":
-        return "#4B5563";
-      case "white":
-        return "#6B7280";
+      case '#C8C5CB':
+        return '#4B5563';
+      case '#EFE9F7':
+        return '#6A3EA1';
+      case '#F7DEE3':
+        return '#BE185D';
+      case '#DAF6E4':
+        return '#059669';
+      case '#FDEBAB':
+        return '#CA8A04';
+      case '#F7F6D4':
+        return '#A16207';
+      case '#EFEEF0':
+        return '#4B5563';
+      case 'white':
+        return '#6B7280';
       default:
-        return color || "#6B7280";
+        return color || '#6B7280';
     }
   };
 
   return (
     <SafeAreaView
-      style={{ backgroundColor: "lightgrey", flex: 1, gap: 48, padding: 5 }}
+      style={{ backgroundColor: '#FAF8FC0', flex: 1, gap: 48, padding: 5 }}
     >
       {regularCount === 0 && pinnedCount === 0 ? (
         <View
           style={{
             flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "white",
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'white',
           }}
         >
           <Image
@@ -226,16 +231,16 @@ export default function HomeScreen() {
             style={{
               width: 200,
               height: 200,
-              resizeMode: "contain",
+              resizeMode: 'contain',
               marginTop: 20,
             }}
           />
           <Text
             style={{
-              fontWeight: "bold",
+              fontWeight: 'bold',
               fontSize: 35,
-              fontFamily: "InterBold",
-              textAlign: "center",
+              fontFamily: 'InterBold',
+              textAlign: 'center',
             }}
           >
             Start Your Journey
@@ -244,47 +249,47 @@ export default function HomeScreen() {
             <Text
               style={{
                 fontSize: 15,
-                fontWeight: "100",
-                textAlign: "center",
-                fontFamily: "InterRegular",
+                fontWeight: '100',
+                textAlign: 'center',
+                fontFamily: 'InterRegular',
               }}
             >
               Every big step starts with a small step. Note your first idea and
               start your journey!
             </Text>
           </View>
-          <View style={{ width: 200, alignItems: "flex-end", paddingTop: 50 }}>
+          <View style={{ width: 200, alignItems: 'flex-end', paddingTop: 50 }}>
             <Image source={direction} />
           </View>
         </View>
       ) : (
-        <ScrollView style={{ backgroundColor: "#FAF8FC0", flex: 1 }}>
+        <ScrollView style={{ backgroundColor: '#FAF8FC0', flex: 1 }}>
           {/* ----- Pinned Notes ----- */}
           {pinnedCount > 0 && (
             <View>
               <View
                 style={{
                   marginTop: 34,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
               >
                 <Text
                   style={{
-                    fontFamily: "InterBold",
+                    fontFamily: 'InterBold',
                     fontSize: 15,
-                    fontWeight: "bold",
+                    fontWeight: 'bold',
                   }}
                 >
                   Pinned Notes
                 </Text>
                 <TouchableOpacity>
-                  <Text style={{ color: "#6A3EA1" }}>View all</Text>
+                  <Text style={{ color: '#6A3EA1' }}>View all</Text>
                 </TouchableOpacity>
               </View>
 
-              <Animated.FlatList
+              <FlatList
                 data={pinnedNotes}
                 horizontal
                 contentContainerStyle={{
@@ -301,7 +306,7 @@ export default function HomeScreen() {
                   return (
                     <Link
                       href={{
-                        pathname: "../query/[id]",
+                        pathname: '../query/[id]',
                         params: {
                           id: item.id,
                           type: item.type || item.category,
@@ -315,48 +320,48 @@ export default function HomeScreen() {
                       >
                         <View
                           style={{
-                            backgroundColor: item.backgroundcolor || "#f5f5f5",
+                            backgroundColor: item.backgroundcolor || '#f5f5f5',
                             marginVertical: 8,
                             borderRadius: 10,
                             height: 252,
                             width: 180,
                             padding: 8,
-                            overflow: "hidden",
+                            overflow: 'hidden',
                             borderWidth: isSelected ? 3 : 0,
-                            borderColor: isSelected ? "#6A3EA1" : "transparent",
+                            borderColor: isSelected ? '#6A3EA1' : 'transparent',
                             opacity: isSelected ? 0.7 : 1,
                           }}
                         >
                           <Text
                             style={{
-                              fontWeight: "bold",
+                              fontWeight: 'bold',
                               fontSize: 18,
                               marginBottom: 5,
                             }}
                           >
-                            {item.title || "Untitled Note"}
+                            {item.title || 'Untitled Note'}
                           </Text>
 
-                          {(item.type === "buying" ||
-                            item.category === "buying") &&
+                          {(item.type === 'buying' ||
+                            item.category === 'buying') &&
                           Array.isArray(item.rich) ? (
                             <View>
                               {item.rich.map((todo: any) => (
                                 <View
                                   key={todo.id}
                                   style={{
-                                    flexDirection: "row",
-                                    alignItems: "center",
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
                                     marginBottom: 4,
                                   }}
                                 >
                                   <Checkbox
                                     status={
-                                      todo.checked ? "checked" : "unchecked"
+                                      todo.checked ? 'checked' : 'unchecked'
                                     }
                                     onPress={() => toggleTodo(item.id, todo.id)}
                                   />
-                                  <Text style={{ flex: 1, flexWrap: "wrap" }}>
+                                  <Text style={{ flex: 1, flexWrap: 'wrap' }}>
                                     {todo.text}
                                   </Text>
                                 </View>
@@ -367,32 +372,32 @@ export default function HomeScreen() {
                               contentWidth={180}
                               source={{
                                 html:
-                                  typeof item.rich === "string"
+                                  typeof item.rich === 'string'
                                     ? item.rich
-                                    : "<p>No content</p>",
+                                    : '<p>No content</p>',
                               }}
                             />
                           )}
 
                           <View
                             style={{
-                              position: "absolute",
+                              position: 'absolute',
                               backgroundColor: getBackground(
-                                item.backgroundcolor || "#f5f5f5"
+                                item.backgroundcolor || '#f5f5f5',
                               ),
                               bottom: 0,
                               left: 0,
-                              width: "110%",
+                              width: '110%',
                               height: 28,
                               paddingLeft: 20,
-                              justifyContent: "center",
+                              justifyContent: 'center',
                             }}
                           >
-                            <Text style={{ color: "white" }}>
-                              {item.type === "buying" ||
-                              item.category === "buying"
-                                ? "Checklist"
-                                : "Interesting Ideas"}
+                            <Text style={{ color: 'white' }}>
+                              {item.type === 'buying' ||
+                              item.category === 'buying'
+                                ? 'Checklist'
+                                : 'Interesting Ideas'}
                             </Text>
                           </View>
                         </View>
@@ -409,26 +414,26 @@ export default function HomeScreen() {
             <View style={{ marginTop: 20 }}>
               <View
                 style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
               >
                 <Text
                   style={{
-                    fontFamily: "InterBold",
+                    fontFamily: 'InterBold',
                     fontSize: 15,
-                    fontWeight: "bold",
+                    fontWeight: 'bold',
                   }}
                 >
                   Interesting Ideas
                 </Text>
                 <TouchableOpacity>
-                  <Text style={{ color: "#6A3EA1" }}>View all</Text>
+                  <Text style={{ color: '#6A3EA1' }}>View all</Text>
                 </TouchableOpacity>
               </View>
               <View>
-                <Animated.FlatList
+                <FlatList
                   data={regularNotes}
                   numColumns={2}
                   contentContainerStyle={{
@@ -440,13 +445,13 @@ export default function HomeScreen() {
                   keyExtractor={(item) =>
                     item.id?.toString() || Math.random().toString()
                   }
-                  keyboardDismissMode={"on-drag"}
+                  keyboardDismissMode={'on-drag'}
                   renderItem={({ item }) => {
                     const isSelected = selectedNotes.includes(item.id);
                     return (
                       <Link
                         href={{
-                          pathname: "../query/[id]",
+                          pathname: '../query/[id]',
                           params: {
                             id: item.id,
                             type: item.type || item.category,
@@ -457,76 +462,76 @@ export default function HomeScreen() {
                         <TouchableOpacity
                           onLongPress={() => toggleSelect(item.id)}
                           activeOpacity={0.8}
-                          style={{ width: "48%" }}
+                          style={{ width: '48%' }}
                         >
                           <View
                             style={{
                               backgroundColor:
                                 item.backgroundColor ||
                                 item.backgroundcolor ||
-                                "#f5f5f5",
+                                '#f5f5f5',
                               marginVertical: 8,
                               borderRadius: 10,
                               height: 252,
                               padding: 8,
                               margin: 8,
-                              overflow: "hidden",
+                              overflow: 'hidden',
                               borderWidth: isSelected ? 3 : 0,
                               borderColor: isSelected
-                                ? "#6A3EA1"
-                                : "transparent",
+                                ? '#6A3EA1'
+                                : 'transparent',
                               opacity: isSelected ? 0.7 : 1,
                             }}
                           >
                             <Text
                               style={{
-                                fontWeight: "bold",
+                                fontWeight: 'bold',
                                 fontSize: 18,
                                 marginBottom: 5,
                               }}
                             >
-                              {item.title || "Untitled Note"}
+                              {item.title || 'Untitled Note'}
                             </Text>
-                            {(item.type === "buying" ||
-                              item.category === "buying") &&
+                            {(item.type === 'buying' ||
+                              item.category === 'buying') &&
                             Array.isArray(item.rich) ? (
                               <View>
                                 {item.rich.map((todo: any) => (
                                   <View
                                     key={todo.id}
                                     style={{
-                                      flexDirection: "row",
-                                      alignItems: "center",
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
                                       marginBottom: 4,
                                     }}
                                   >
                                     <Checkbox
                                       status={
-                                        todo.checked ? "checked" : "unchecked"
+                                        todo.checked ? 'checked' : 'unchecked'
                                       }
                                       onPress={() =>
                                         toggleTodo(item.id, todo.id)
                                       }
                                     />
-                                    <Text style={{ flex: 1, flexWrap: "wrap" }}>
+                                    <Text style={{ flex: 1, flexWrap: 'wrap' }}>
                                       {todo.text}
                                     </Text>
                                   </View>
                                 ))}
                               </View>
                             ) : null}
-                            {String(item.type) === "idea" ? (
+                            {String(item.type) === 'idea' ? (
                               <RenderHTML
                                 contentWidth={180}
                                 source={{
                                   html:
-                                    typeof item.rich === "string"
+                                    typeof item.rich === 'string'
                                       ? item.rich
-                                      : "<p>No content</p>",
+                                      : '<p>No content</p>',
                                 }}
                               />
                             ) : null}
-                            {String(item.type) === "goals" ? (
+                            {String(item.type) === 'goals' ? (
                               <>
                                 <Text>text</Text>
                               </>
@@ -547,22 +552,22 @@ export default function HomeScreen() {
       {selectedNotes.length > 0 && (
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "space-around",
+            flexDirection: 'row',
+            justifyContent: 'space-around',
             padding: 10,
-            position: "absolute",
+            position: 'absolute',
             bottom: 90,
-            width: "100%",
+            width: '100%',
           }}
         >
           <TouchableOpacity onPress={pinSelected}>
-            <Text style={{ color: "green", fontSize: 20 }}>📌 Pin</Text>
+            <Text style={{ color: 'green', fontSize: 20 }}>📌 Pin</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={finishedNote}>
-            <Text style={{ color: "green", fontSize: 20 }}>✅ Finished</Text>
+            <Text style={{ color: 'green', fontSize: 20 }}>✅ Finished</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={deleteSelected}>
-            <Text style={{ color: "red", fontSize: 20 }}>🗑 Delete</Text>
+            <Text style={{ color: 'red', fontSize: 20 }}>🗑 Delete</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -571,19 +576,19 @@ export default function HomeScreen() {
       {selectedPins.length > 0 && (
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "space-around",
+            flexDirection: 'row',
+            justifyContent: 'space-around',
             padding: 10,
-            position: "absolute",
+            position: 'absolute',
             bottom: 90,
-            width: "100%",
+            width: '100%',
           }}
         >
           <TouchableOpacity onPress={pinSelectedPin}>
-            <Text style={{ color: "green", fontSize: 20 }}>📌 unPin</Text>
+            <Text style={{ color: 'green', fontSize: 20 }}>📌 unPin</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={deleteSelectedPin}>
-            <Text style={{ color: "red", fontSize: 20 }}>🗑 Delete</Text>
+            <Text style={{ color: 'red', fontSize: 20 }}>🗑 Delete</Text>
           </TouchableOpacity>
         </View>
       )}

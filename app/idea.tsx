@@ -625,10 +625,7 @@ const styles = StyleSheet.create({
     minWidth: "100%",
   },
   footer: {
-    position: "absolute",
-    bottom: 0,
     height: 60,
-    width: "100%",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",

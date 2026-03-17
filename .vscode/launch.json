@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "type": "radon-ide",
+            "request": "launch",
+            "name": "Radon IDE panel",
+            "android": {},
+            "eas": {},
+            "ios": {
+                "scheme": "notepad"
+            },
+            "appRoot": "./",
+            "isExpo": true
+        }
+    ]
+}

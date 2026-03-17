@@ -1,9 +1,11 @@
 import Screen from '@/components/modal';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
+import { DateTimePicker } from '@react-native-community/datetimepicker';
 import {
   Alert,
   FlatList,
@@ -17,15 +19,27 @@ import {
   View,
 } from 'react-native';
 import { Checkbox, Divider } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   actions,
   RichEditor,
   RichToolbar,
 } from 'react-native-pell-rich-editor';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import RoutineC from '../../components/routineC';
+//@ts-config
 import ill from '../../assets/images/ill.png';
+interface SubTodo {
+  ids: string;
+  subtext: string;
+  checked: boolean;
+}
+
+interface Todo {
+  id: number;
+  text: string;
+  checked: boolean;
+  subTodo: SubTodo[]; // Array for multiple subtodos
+}
 
 export default function BuyScreen() {
   const router = useRouter();
@@ -39,10 +53,59 @@ export default function BuyScreen() {
   const [finish, setFinish] = useState(false);
   const { id, type } = useLocalSearchParams();
   const [note, setNote] = useState<any>(null);
+  const [visiblel, setVisiblel] = useState(false);
   const buying = 'buying';
   const [todos, setTodos] = useState<
     { id: number; text: string; checked: boolean }[]
   >([]);
+
+  const [todo, setTodo] = useState<Todo[]>([]);
+  
+  const [date, setDate] = useState();
+  const [show, setShow] = useState{false};
+
+  // Initialize with empty array
+
+  const [mainTodoInput, setMainTodoInput] = useState('');
+  const [subTodoInputs, setSubTodoInputs] = useState<{ [key: number]: string }>(
+    {},
+  );
+
+  const addTodos = (text: string) => {
+    if (!text.trim()) return;
+    setTodo([
+      ...todo,
+      {
+        id: Date.now(),
+        text,
+        checked: false,
+        subTodo: [],
+      },
+    ]);
+    setMainTodoInput('');
+  };
+
+  const addSubTodo = (todoId: number, text: string) => {
+    if (!text.trim()) return;
+    setTodo((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === todoId
+          ? {
+              ...todo,
+              subTodo: [
+                ...todo.subTodo,
+                {
+                  ids: Date.now().toString(),
+                  subtext: text,
+                  checked: false,
+                },
+              ],
+            }
+          : todo,
+      ),
+    );
+    setSubTodoInputs((prev) => ({ ...prev, [todoId]: '' }));
+  };
   const richText = useRef<RichEditor | null>(null);
   const [image, setImage] = useState('');
 
@@ -69,6 +132,7 @@ export default function BuyScreen() {
             foundNote.backgroundcolor || foundNote.backgroudcolor || '#FFFFFF',
           );
           setTodos(Array.isArray(foundNote.rich) ? foundNote.rich : []);
+          setTodo(Array.isArray(foundNote.rich) ? foundNote.rich : []);
         }
       } catch (error) {
         console.error('Error loading note:', error);
@@ -240,7 +304,32 @@ export default function BuyScreen() {
       setImage(result.assets[0].uri);
     }
   };
+  const saveGoalsToStorage = async (updatedGoals: any) => {
+    try {
+      const dbString = await AsyncStorage.getItem('notesDB');
+      const db = dbString ? JSON.parse(dbString) : {};
 
+      const categories = ['goals']; // goals only
+
+      const category = 'goals';
+      if (db[category]) {
+        const noteIndex = db[category].findIndex(
+          (n) => String(n.id) === String(id),
+        );
+
+        if (noteIndex !== -1) {
+          db[category][noteIndex].rich = updatedGoals;
+          await AsyncStorage.setItem('notesDB', JSON.stringify(db));
+          console.log('Goals saved!');
+        }
+      }
+    } catch (e) {
+      console.error('Error saving goals:', e);
+    }
+  };
+
+
+  const onchange = (e, selectedDate:any)=>{setDate(selectedDate)}
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colourd }}>
       <StatusBar backgroundColor={colourd} />
@@ -261,11 +350,48 @@ export default function BuyScreen() {
           <Ionicons name="arrow-back" size={20} color={'#6A3EA1'} />
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
+        <View>
+          {String(type) === 'routine' ? (
+            <>
+              <TouchableOpacity
+                style={{
+                  width: 175,
+                  height: '90%',
+                  backgroundColor: '#6A3EA1',
+                  padding: 8,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  gap: 8,
+                  borderRadius: 30,
+                }}
+                onPress={() => {
+                  setVisiblel(true);
+                }}
+              >
+                <Ionicons name="add" size={20} color={'white'} />
+                <Text
+                  style={{
+                    fontFamily: 'InterRegular',
+                    textAlign: 'center',
+                    fontSize: 10,
+                    fontWeight: 'bold',
+                    color: 'white',
+                  }}
+                >
+                  Add checkbox
+                </Text>
+              </TouchableOpacity>
+            </>
+          ) : null}
+        </View>
       </View>
 
       {/* ✅ SIMPLIFIED: Removed FlatList, render directly */}
       <View style={{ flex: 1, backgroundColor: colourd, padding: 10 }}>
-        <Text style={{ fontSize: 40, fontFamily: 'interBold' }}>
+        <Text
+          style={{ fontSize: 40, fontFamily: 'interBold', fontWeight: 'bold' }}
+        >
           {note.title}
         </Text>
         {String(type) === 'buying' ? (
@@ -600,15 +726,144 @@ export default function BuyScreen() {
           </View>
         ) : null}
         {String(type) === 'routine' ? (
-          <Text
-            style={{
-              fontSize: 30,
-              fontWeight: 'bold',
-              fontFamily: 'InterRegular',
-            }}
-          >
-            hi
-          </Text>
+          <View style={{ backgroundColor: colourd, flex: 1 }}>
+            <RoutineC
+              visible={visiblel}
+              setVisible={setVisiblel}
+              todos={todo}
+            ></RoutineC>
+          </View>
+        ) : null}
+        {String(type) === 'goals' ? (
+          <View style={{ backgroundColor: colourd, flex: 1, padding: 0 }}>
+            {/* Show all todos */}
+            {todo.map((todo) => (
+              <View key={todo.id} style={{ marginBottom: 15 }}>
+                {/* Main Todo */}
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginBottom: 5,
+                  }}
+                  onPress={() => {
+                    const updated = todo.map((t) =>
+                      t.id === todo.id ? { ...t, checked: !t.checked } : t,
+                    );
+                    setTodo(updated);
+                    saveGoalsToStorage(updated);
+                  }}
+                >
+                  <Checkbox
+                    status={todo.checked ? 'checked' : 'unchecked'}
+                    color="#6A3EA1"
+                  />
+                  <Text
+                    style={[
+                      styles.todoText,
+                      todo.checked && styles.todoChecked,
+                    ]}
+                  >
+                    {todo.text}
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Sub Todos */}
+                <View style={{ paddingLeft: 40 }}>
+                  {todo.subTodo.map((sub) => (
+                    <TouchableOpacity
+                      key={sub.ids}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginBottom: 5,
+                      }}
+                      onPress={() => {
+                        const updated = todo.map((t) =>
+                          t.id === todo.id
+                            ? {
+                                ...t,
+                                subTodo: t.subTodo.map((s) =>
+                                  s.ids === sub.ids
+                                    ? { ...s, checked: !s.checked }
+                                    : s,
+                                ),
+                              }
+                            : t,
+                        );
+
+                        setTodo(updated);
+                        saveGoalsToStorage(updated);
+                      }}
+                    >
+                      <Checkbox
+                        status={sub.checked ? 'checked' : 'unchecked'}
+                        color="#6A3EA1"
+                      />
+                      <Text
+                        style={[
+                          styles.todoText,
+                          sub.checked && styles.todoChecked,
+                        ]}
+                      >
+                        {sub.subtext}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+
+                  {/* Add subtask input */}
+                  <TextInput
+                    placeholder="Add subtask..."
+                    style={styles.newItemInput}
+                    value={subTodoInputs[todo.id] || ''}
+                    onChangeText={(text) =>
+                      setSubTodoInputs((prev) => ({
+                        ...prev,
+                        [todo.id]: text,
+                      }))
+                    }
+                    onSubmitEditing={() =>
+                      addSubTodo(todo.id, subTodoInputs[todo.id] || '')
+                    }
+                    returnKeyType="done"
+                  />
+                  <TouchableOpacity
+                    style={styles.addBtn}
+                    onPress={() =>
+                      addSubTodo(todo.id, subTodoInputs[todo.id] || '')
+                    }
+                  >
+                    <Ionicons name="add" size={20} color={'#6A3EA1'} />
+                    <Text style={styles.addBtnText}>Add subtask</Text>
+                  </TouchableOpacity>
+                </View>
+                <KeyboardAvoidingView>
+                  <TextInput
+                    placeholder="New item..."
+                    style={styles.newItemInput}
+                    value={input}
+                    onChangeText={setInput}
+                    onSubmitEditing={() => {
+                      addTodos(input);
+                      setInput('');
+                    }}
+                    returnKeyType="done"
+                  />
+                </KeyboardAvoidingView>
+                {/* Add button */}
+                <TouchableOpacity
+                  style={styles.addBtn}
+                  onPress={() => {
+                    addTodos(input);
+                    setInput('');
+                  }}
+                >
+                  <Ionicons name="add" size={20} color={'#6A3EA1'} />
+                  <Text style={styles.addBtnText}>Add checkbox</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
         ) : null}
       </View>
 
@@ -755,6 +1010,7 @@ export default function BuyScreen() {
               </View>
             </View>
           </TouchableOpacity>
+          {show && <DateTimePicker mode={"date"} value={date} onChange={onchange} is24Hours={true} />}
           <TouchableOpacity>
             <View
               style={{
@@ -1043,9 +1299,6 @@ const styles = StyleSheet.create({
   scroll: { backgroundColor: 'white' },
   footer: {
     height: 60,
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

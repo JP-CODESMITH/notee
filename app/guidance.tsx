@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -8,12 +10,12 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Platform,
 } from 'react-native';
 import { Divider, TextInput } from 'react-native-paper';
 import {
@@ -24,8 +26,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ill from '../assets/images/ill.png';
 import Screen from '../components/modal';
-import * as ImagePicker from 'expo-image-picker';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function GuidanceScreen() {
   const richText = useRef<RichEditor | null>(null);
@@ -722,10 +722,7 @@ const styles = StyleSheet.create({
     minWidth: '100%',
   },
   footer: {
-    position: 'absolute',
-    bottom: 0,
     height: 60,
-    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -733,6 +730,7 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     elevation: 0.5,
     shadowColor: 'black',
+    width: "100%",
   },
   footerLeft: {
     width: '55.5%',

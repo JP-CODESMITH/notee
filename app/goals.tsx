@@ -637,7 +637,7 @@ export default function GoalsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   ui: {
     flex: 1,
     width: "95%",

@@ -34,7 +34,7 @@ export default function BuyScreen() {
   const [inputT, setInputT] = useState('');
   const [input, setInput] = useState('');
   const [finish, setFinish] = useState(false);
-  const colours = [
+  const colourr:string = [
     { id: 1, colour: '#C8C5CB' },
     { id: 2, colour: '#F7DEE3' },
     { id: 3, colour: '#EFE9F7' },
@@ -327,7 +327,6 @@ export default function BuyScreen() {
                 transparent
                 animationType="slide"
                 onRequestClose={() => setVisiblel(false)}
-                n
               >
                 <View
                   style={{
@@ -625,283 +624,291 @@ export default function BuyScreen() {
         </View>
       </View>
       <Screen visible={modal} svisible={setModal} color={colourd}>
-        <>
-          <TouchableOpacity onPress={() => setModal(false)}>
-            <Ionicons
-              name="close-circle"
-              size={24}
-              color={'#827D89'}
-              style={{ textAlign: 'right' }}
-            ></Ionicons>
-          </TouchableOpacity>
-          <Text style={{ fontSize: 14, fontWeight: '600' }}>
-            Change Background
-          </Text>
-          <FlatList
-            data={colours}
-            horizontal
-            scrollEnabled={false}
-            style={{ maxHeight: 60 }}
-            contentContainerStyle={{
-              justifyContent: 'space-between',
-              marginLeft: 5,
-              maxHeight: 20,
-            }}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
-                  margin: 5,
-                  borderColor: 'white',
-                  borderWidth: 2,
-                  backgroundColor: item.colour, // ✅ correct property
-                }}
-                onPress={() => setColourd(item.colour)}
-              />
-            )}
-            keyExtractor={(item) => item.id.toString()} // ✅ call toString()
-          />
-        </>
-        <Divider style={{ height: 2, borderRadius: 20 }} />
-        <>
-          <Text style={{ fontSize: 17, fontWeight: '600', marginTop: 5 }}>
-            extras
-          </Text>
-          <TouchableOpacity>
-            <View
-              style={{
-                height: 56,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexDirection: 'row',
-              }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons
-                  name="alarm-outline"
-                  size={24}
-                  style={{ marginRight: 5 }}
-                />
-                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-                  Set Reminder
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-                  Not set
-                </Text>
-                <Ionicons name="arrow-forward" size={24} />
-              </View>
+        <View style={{ flex: 1 }}>
+          <>
+            <TouchableOpacity onPress={() => setModal(false)}>
+              <Ionicons
+                name="close-circle"
+                size={24}
+                color={'#827D89'}
+                style={{ textAlign: 'right' }}
+              ></Ionicons>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 14, fontWeight: '600' }}>
+              Change Background
+            </Text>
+            <View style={{ height: 20 }}>
+              <Text>hello</Text>
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <View
-              style={{
-                height: 56,
+            <FlatList
+              data={colourr}
+              horizontal
+              scrollEnabled={false}
+              contentContainerStyle={{
                 justifyContent: 'space-between',
-                alignItems: 'center',
-                flexDirection: 'row',
+                marginLeft: 5,
+                maxHeight: 20,
+                height: 20
               }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons
-                  name={'create-outline'}
-                  size={24}
-                  style={{ marginRight: 5 }}
-                />
-                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-                  Change Note Type
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-                  Buying Some...
-                </Text>
-                <Ionicons name="arrow-forward" size={24} />
-              </View>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <View
-              style={{
-                height: 56,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexDirection: 'row',
-              }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons
-                  name="pricetag-outline"
-                  size={24}
-                  style={{ marginRight: 5 }}
-                />
-                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-                  Give Label
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-                  Not set
-                </Text>
-                <Ionicons name="arrow-forward" size={24} />
-              </View>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setPinned(true);
-              setModall(true);
-            }}
-          >
-            <View
-              style={{
-                height: 56,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexDirection: 'row',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  textAlign: 'left',
-                  alignItems: 'center',
-                }}
-              >
-                <Ionicons
-                  name="pin-outline"
-                  size={24}
-                  style={{ marginRight: 5 }}
-                />
-                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-                  Pin the note
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setFinish(false);
-            }}
-          >
-            <View
-              style={{
-                height: 56,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexDirection: 'row',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  textAlign: 'left',
-                  alignItems: 'center',
-                }}
-              >
-                <Ionicons
-                  name="checkmark-done-outline"
-                  size={24}
-                  style={{ marginRight: 5 }}
-                />
-                <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
-                  Mark as Finished
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </>
-        <Divider />
-        <>
-          <TouchableOpacity>
-            <View
-              style={{
-                height: 56,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexDirection: 'row',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  textAlign: 'left',
-                  alignItems: 'center',
-                }}
-              >
-                <Ionicons
-                  name="trash-outline"
-                  size={30}
-                  color={'red'}
-                  style={{ marginRight: 5 }}
-                />
-                <Text
+              refreshing={false}
+              renderItem={({ item }) => (
+                <TouchableOpacity
                   style={{
-                    fontFamily: 'inter-regular',
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                    color: 'red',
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    margin: 5,
+                    borderColor: 'white',
+                    borderWidth: 2,
+                    backgroundColor: item.colour, // ✅ correct property
+                  }}
+                  onPress={() => setColourd(item.colour)}
+                />
+              )}
+              keyExtractor={(item) => item.id.toString()} // ✅ call toString()
+            />
+          </>
+          <Divider style={{ height: 2, borderRadius: 20 }} />
+          <>
+            <Text style={{ fontSize: 17, fontWeight: '600', marginTop: 5 }}>
+              extras
+            </Text>
+            <TouchableOpacity>
+              <View
+                style={{
+                  height: 56,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons
+                    name="alarm-outline"
+                    size={24}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                    Set Reminder
+                  </Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                    Not set
+                  </Text>
+                  <Ionicons name="arrow-forward" size={24} />
+                </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <View
+                style={{
+                  height: 56,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons
+                    name={'create-outline'}
+                    size={24}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                    Change Note Type
+                  </Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                    Buying Some...
+                  </Text>
+                  <Ionicons name="arrow-forward" size={24} />
+                </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <View
+                style={{
+                  height: 56,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons
+                    name="pricetag-outline"
+                    size={24}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                    Give Label
+                  </Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                    Not set
+                  </Text>
+                  <Ionicons name="arrow-forward" size={24} />
+                </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setPinned(true);
+                setModall(true);
+              }}
+            >
+              <View
+                style={{
+                  height: 56,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    textAlign: 'left',
+                    alignItems: 'center',
                   }}
                 >
-                  Delete Note
-                </Text>
+                  <Ionicons
+                    name="pin-outline"
+                    size={24}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                    Pin the note
+                  </Text>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        </>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setFinish(false);
+              }}
+            >
+              <View
+                style={{
+                  height: 56,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    textAlign: 'left',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Ionicons
+                    name="checkmark-done-outline"
+                    size={24}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text style={{ fontSize: 16, fontWeight: 'bold' }}>
+                    Mark as Finished
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </>
+          <Divider />
+          <>
+            <TouchableOpacity>
+              <View
+                style={{
+                  height: 56,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    textAlign: 'left',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Ionicons
+                    name="trash-outline"
+                    size={30}
+                    color={'red'}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text
+                    style={{
+                      fontFamily: 'inter-regular',
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      color: 'red',
+                    }}
+                  >
+                    Delete Note
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </>
+        </View>
       </Screen>
       <Screen visible={modall} svisible={setModall} colour={colourd}>
-        <View
-          style={{
-            height: '100%',
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 20,
-          }}
-        >
-          <Image source={ill} style={{ width: 160, height: 160 }} />
-          <View style={{ alignItems: 'center' }}>
-            <>
-              <Text
-                style={{
-                  fontFamily: 'interBold',
-                  fontSize: 20,
-                  fontWeight: 'bold',
-                }}
-              >
-                Notes Pinned Successfully
-              </Text>
-            </>
-            <>
-              <Text
-                style={{
-                  fontFamily: 'interRegular',
-                  fontSize: 16,
-                  textAlign: 'center',
-                  width: 280,
-                }}
-              >
-                This note already displayed on pinned section
-              </Text>
-            </>
-          </View>
-          <TouchableOpacity
+        <View>
+          <View
             style={{
-              backgroundColor: '#6A3EA1',
-              padding: '15',
-              borderRadius: 40,
-              paddingHorizontal: 30,
-            }}
-            onPress={() => {
-              setModall(false);
+              height: '100%',
+              width: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: 20,
             }}
           >
-            <Text style={{ fontSize: 16, color: 'white' }}>close</Text>
-          </TouchableOpacity>
+            <Image source={ill} style={{ width: 160, height: 160 }} />
+            <View style={{ alignItems: 'center' }}>
+              <>
+                <Text
+                  style={{
+                    fontFamily: 'interBold',
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                  }}
+                >
+                  Notes Pinned Successfully
+                </Text>
+              </>
+              <>
+                <Text
+                  style={{
+                    fontFamily: 'interRegular',
+                    fontSize: 16,
+                    textAlign: 'center',
+                    width: 280,
+                  }}
+                >
+                  This note already displayed on pinned section
+                </Text>
+              </>
+            </View>
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#6A3EA1',
+                padding: '15',
+                borderRadius: 40,
+                paddingHorizontal: 30,
+              }}
+              onPress={() => {
+                setModall(false);
+              }}
+            >
+              <Text style={{ fontSize: 16, color: 'white' }}>close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Screen>
     </SafeAreaView>
@@ -985,13 +992,13 @@ const styles = StyleSheet.create({
   scroll: { backgroundColor: 'white' },
   footer: {
     height: 60,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     shadowOpacity: 0.25,
     shadowRadius: 1,
     elevation: 0.5,
-    shadowColor: 'black',
+    shadowColor: "black",
   },
   footerLeft: {
     width: '55.5555556%',
