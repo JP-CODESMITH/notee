@@ -1,7 +1,17 @@
-import React from "react";
-import { Modal, View, StyleSheet } from "react-native";
+import React, { type ReactNode } from "react";
+import { Modal, Pressable, StyleSheet } from "react-native";
 
-export default function Screen({ visible, svisible, children,colour}) {
+interface ScreenProps {
+  visible: boolean;
+  svisible: (v: boolean) => void;
+  children: ReactNode;
+  colour?: string;
+  /** Backwards-compat alias used by some screens (`color=`) */
+  color?: string;
+}
+
+export default function Screen({ visible, svisible, children, colour, color }: ScreenProps) {
+  const backgroundColor = colour ?? color ?? "white";
   return (
     <Modal
       visible={visible}
@@ -9,11 +19,16 @@ export default function Screen({ visible, svisible, children,colour}) {
       animationType="slide"
       onRequestClose={() => svisible(false)}
     >
-      <View style={styles.overlay}>
-        <View style={[styles.content, {backgroundColor: colour}]}>
+      <Pressable
+        style={styles.overlay}
+        accessibilityRole="button"
+        accessibilityLabel="Close dialog"
+        onPress={() => svisible(false)}
+      >
+        <Pressable style={[styles.content, { backgroundColor }]} onPress={(e) => e.stopPropagation()}>
           {children}
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }

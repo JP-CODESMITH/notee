@@ -34,7 +34,7 @@ export default function BuyScreen() {
   const [inputT, setInputT] = useState('');
   const [input, setInput] = useState('');
   const [finish, setFinish] = useState(false);
-  const colourr:string = [
+  const colourr: { id: number; colour: string }[] = [
     { id: 1, colour: '#C8C5CB' },
     { id: 2, colour: '#F7DEE3' },
     { id: 3, colour: '#EFE9F7' },
@@ -52,10 +52,12 @@ export default function BuyScreen() {
   const [todos, setTodos] = useState<
     {
       id: number;
+      title?: string;
       text: string;
       colourT: string;
       colourK: string;
       checked: boolean;
+      complete?: boolean;
     }[]
   >([]);
   const deleteTodo = (id: number) => {
@@ -254,9 +256,9 @@ export default function BuyScreen() {
                         <View style={{ height: 36, width: '100%' }}>
                           <BouncyCheckbox
                             size={25}
-                            fillColor={todo.colourT} // ✅ text color
-                            unfillColor={todo.colourK} // ✅ background color
-                            status={todo.checked ? 'checked' : 'unchecked'}
+                            fillColor={todo.colourT}
+                            unFillColor={todo.colourK}
+                            isChecked={todo.checked}
                             text={todo.title}
                             iconStyle={{ borderColor: todo.colourT }} // ✅ border color
                             innerIconStyle={{ borderWidth: 2 }}
@@ -446,7 +448,6 @@ export default function BuyScreen() {
                         width: 150,
                         backgroundColor: colourt,
                         height: 40,
-                        textAlign: 'left',
                         borderWidth: 1,
                         borderRadius: 30,
                         borderColor: 'white',
@@ -474,7 +475,7 @@ export default function BuyScreen() {
               <Text
                 style={{
                   fontSize: 10,
-                  fontfamily: 'InterRegular',
+                  fontFamily: 'InterRegular',
                   color: '#837d89',
                   paddingVertical: 10,
                 }}
@@ -521,9 +522,9 @@ export default function BuyScreen() {
                         <View style={{ height: 36, width: '100%' }}>
                           <BouncyCheckbox
                             size={25}
-                            fillColor={todo.colourT} // ✅ text color
-                            unfillColor={todo.colourK} // ✅ background color
-                            status={todo.checked ? 'checked' : 'unchecked'}
+                            fillColor={todo.colourT}
+                            unFillColor={todo.colourK}
+                            isChecked={todo.checked}
                             text={todo.title}
                             iconStyle={{ borderColor: todo.colourT }} // ✅ border color
                             innerIconStyle={{ borderWidth: 2 }}
@@ -771,7 +772,6 @@ export default function BuyScreen() {
                 <View
                   style={{
                     flexDirection: 'row',
-                    textAlign: 'left',
                     alignItems: 'center',
                   }}
                 >
@@ -802,7 +802,6 @@ export default function BuyScreen() {
                 <View
                   style={{
                     flexDirection: 'row',
-                    textAlign: 'left',
                     alignItems: 'center',
                   }}
                 >
@@ -832,7 +831,6 @@ export default function BuyScreen() {
                 <View
                   style={{
                     flexDirection: 'row',
-                    textAlign: 'left',
                     alignItems: 'center',
                   }}
                 >
@@ -898,7 +896,7 @@ export default function BuyScreen() {
             <TouchableOpacity
               style={{
                 backgroundColor: '#6A3EA1',
-                padding: '15',
+                padding: 15,
                 borderRadius: 40,
                 paddingHorizontal: 30,
               }}
@@ -921,8 +919,8 @@ const styles = StyleSheet.create({
     width: '95%',
   },
   header: {
-    height: 60 + StatusBar.currentHeight,
-    paddingTop: StatusBar.currentHeight,
+    height: 60,
+    paddingTop: 0,
     flexDirection: 'row',
     alignItems: 'center',
     shadowOpacity: 0.25,

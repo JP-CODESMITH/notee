@@ -40,7 +40,7 @@ export default function GuidanceScreen() {
   const [modall, setModall] = useState(false);
   const [colourd, setColourd] = useState('white');
   const [content, setContent] = useState('');
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<string | null>(null);
 
   const colours = [
     { id: 1, colour: '#C8C5CB' },
@@ -95,7 +95,7 @@ export default function GuidanceScreen() {
     };
   }, []);
 
-  const handleCustomAction = (action) => {
+  const handleCustomAction = (action: string) => {
     switch (action) {
       case 'insertVideo':
         richText.current?.insertHTML(
@@ -115,7 +115,7 @@ export default function GuidanceScreen() {
         );
         break;
       case 'setBackgroundColor':
-        richText.current?.commandDOM('backColor', 'yellow');
+        (richText.current as any)?.commandDOM('backColor', 'yellow');
         break;
       default:
         Alert.alert('Unsupported', `${action} not yet implemented`);
@@ -341,7 +341,7 @@ export default function GuidanceScreen() {
                 onPressAddLink={() =>
                   richText.current?.insertLink('https://google.com', 'Google')
                 }
-                onPressAddFile={(action) => handleCustomAction(action)}
+                onPressAddFile={(action: string) => handleCustomAction(action)}
                 iconMap={{
                   [actions.heading1]: () => (
                     <Text style={{ fontSize: 14, fontFamily: 'InterBold' }}>
@@ -557,7 +557,6 @@ export default function GuidanceScreen() {
               <View
                 style={{
                   flexDirection: 'row',
-                  textAlign: 'left',
                   alignItems: 'center',
                 }}
               >
@@ -588,7 +587,6 @@ export default function GuidanceScreen() {
               <View
                 style={{
                   flexDirection: 'row',
-                  textAlign: 'left',
                   alignItems: 'center',
                 }}
               >
@@ -618,7 +616,6 @@ export default function GuidanceScreen() {
               <View
                 style={{
                   flexDirection: 'row',
-                  textAlign: 'left',
                   alignItems: 'center',
                 }}
               >
@@ -682,7 +679,7 @@ export default function GuidanceScreen() {
           <TouchableOpacity
             style={{
               backgroundColor: '#6A3EA1',
-              padding: '15',
+              padding: 15,
               borderRadius: 40,
               paddingHorizontal: 30,
             }}

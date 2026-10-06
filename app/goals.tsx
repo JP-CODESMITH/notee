@@ -496,7 +496,6 @@ export default function GoalsScreen() {
               <View
                 style={{
                   flexDirection: "row",
-                  textAlign: "left",
                   alignItems: "center",
                 }}
               >
@@ -527,7 +526,6 @@ export default function GoalsScreen() {
               <View
                 style={{
                   flexDirection: "row",
-                  textAlign: "left",
                   alignItems: "center",
                 }}
               >
@@ -557,7 +555,6 @@ export default function GoalsScreen() {
               <View
                 style={{
                   flexDirection: "row",
-                  textAlign: "left",
                   alignItems: "center",
                 }}
               >
@@ -621,7 +618,7 @@ export default function GoalsScreen() {
           <TouchableOpacity
             style={{
               backgroundColor: "#6A3EA1",
-              padding: "15",
+              padding: 15,
               borderRadius: 40,
               paddingHorizontal: 30,
             }}

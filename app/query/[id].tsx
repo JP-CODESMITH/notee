@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
-import { DateTimePicker } from '@react-native-community/datetimepicker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   Alert,
   FlatList,
@@ -26,6 +26,7 @@ import {
 } from 'react-native-pell-rich-editor';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import RoutineC from '../../components/routineC';
+import type { ChecklistItem } from '../../lib/notes';
 //@ts-config
 import ill from '../../assets/images/ill.png';
 interface SubTodo {
@@ -55,14 +56,12 @@ export default function BuyScreen() {
   const [note, setNote] = useState<any>(null);
   const [visiblel, setVisiblel] = useState(false);
   const buying = 'buying';
-  const [todos, setTodos] = useState<
-    { id: number; text: string; checked: boolean }[]
-  >([]);
+  const [todos, setTodos] = useState<ChecklistItem[]>([]);
 
   const [todo, setTodo] = useState<Todo[]>([]);
   
-  const [date, setDate] = useState();
-  const [show, setShow] = useState{false};
+  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [show, setShow] = useState(false);
 
   // Initialize with empty array
 
@@ -146,7 +145,7 @@ export default function BuyScreen() {
 
   // ✅ NEW: Function to save updated todos back to AsyncStorage
   const updateTodoInStorage = async (
-    updatedTodos: { id: number; text: string; checked: boolean }[],
+    updatedTodos: ChecklistItem[],
   ) => {
     try {
       const dbString = await AsyncStorage.getItem('notesDB');
@@ -176,24 +175,29 @@ export default function BuyScreen() {
       console.error('Error saving todos:', error);
     }
   };
-  const saveNote = async (id: number, textId: string) => {
+  const saveNote = async (noteId: string | number, textId: string | number) => {
     try {
-      // STEP 1: Load database
       const dbString = await AsyncStorage.getItem('notesDB');
       const db = dbString ? JSON.parse(dbString) : {};
-      // STEP 2: Find the note
       const categories = ['idea', 'buying', 'routine', 'goals', 'guidance'];
       for (const category of categories) {
-        if (db[category]) {
-          // Find note index in this category
+        if (Array.isArray(db[category])) {
           const noteIndex = db[category].findIndex(
-            (n) => String(n.id) === String(id),
+            (n: any) => String(n.id) === String(noteId),
           );
-          if (noteIndex !== -1) {
-            // STEP 3: Find and update the specific todo
-            const todoIndex = db[category][noteIndex].rich.findIndex(
-              (t) => t.id === textId,
+          if (noteIndex !== -1 && Array.isArray(db[category][noteIndex].rich)) {
+            const rich = db[category][noteIndex].rich;
+            const todoIndex = rich.findIndex(
+              (t: any) => String(t.id) === String(textId),
             );
+            if (todoIndex !== -1) {
+              rich[todoIndex] = {
+                ...rich[todoIndex],
+                checked: !rich[todoIndex].checked,
+              };
+              await AsyncStorage.setItem('notesDB', JSON.stringify(db));
+              return true;
+            }
           }
         }
       }
@@ -204,7 +208,7 @@ export default function BuyScreen() {
     }
   };
   // ✅ UPDATED: Toggle checkbox and save to storage
-  const toggleTodo = (todoId: number) => {
+  const toggleTodo = (todoId: number | string) => {
     const updatedTodos = todos.map((t) =>
       t.id === todoId ? { ...t, checked: !t.checked } : t,
     );
@@ -225,7 +229,7 @@ export default function BuyScreen() {
     if (!text.trim()) return;
     setTodos([...todos, { id: Date.now(), text, checked: false }]);
   };
-  const handleCustomAction = (action) => {
+  const handleCustomAction = (action: string) => {
     switch (action) {
       case 'insertVideo':
         richText.current?.insertHTML(
@@ -245,7 +249,7 @@ export default function BuyScreen() {
         );
         break;
       case 'setBackgroundColor':
-        richText.current?.commandDOM('backColor', 'yellow');
+        (richText.current as any)?.commandDOM('backColor', 'yellow');
         break;
       default:
         Alert.alert('Unsupported', `${action} not yet implemented`);
@@ -280,7 +284,7 @@ export default function BuyScreen() {
     return null; // Return null if cancelled
   };
 
-  const takePhoto = async () => {
+  const takePhoto = async (): Promise<string | undefined> => {
     // Request camera permissions on iOS and Android
     if (Platform.OS !== 'web') {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -289,7 +293,7 @@ export default function BuyScreen() {
           'Permission required',
           'Please grant camera permissions to take a photo.',
         );
-        return;
+        return undefined;
       }
     }
 
@@ -301,8 +305,11 @@ export default function BuyScreen() {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      setImage(uri);
+      return uri;
     }
+    return undefined;
   };
   const saveGoalsToStorage = async (updatedGoals: any) => {
     try {
@@ -314,7 +321,7 @@ export default function BuyScreen() {
       const category = 'goals';
       if (db[category]) {
         const noteIndex = db[category].findIndex(
-          (n) => String(n.id) === String(id),
+          (n: any) => String(n.id) === String(id),
         );
 
         if (noteIndex !== -1) {
@@ -329,7 +336,10 @@ export default function BuyScreen() {
   };
 
 
-  const onchange = (e, selectedDate:any)=>{setDate(selectedDate)}
+  const onchange = (_e: any, selectedDate?: Date) => {
+    if (selectedDate) setDate(selectedDate);
+    setShow(false);
+  };
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colourd }}>
       <StatusBar backgroundColor={colourd} />
@@ -532,7 +542,7 @@ export default function BuyScreen() {
               onPressAddLink={() =>
                 richText.current?.insertLink('https://google.com', 'Google')
               }
-              onPressAddFile={(action) => handleCustomAction(action)}
+              onPressAddFile={(action: string) => handleCustomAction(action)}
               iconMap={{
                 [actions.heading1]: () => (
                   <Text style={{ fontSize: 14, fontFamily: 'InterBold' }}>
@@ -570,7 +580,9 @@ export default function BuyScreen() {
         ) : null}
         {String(type) === 'guidance' ? (
           <View style={{ padding: 0 }}>
-            <Image src={note.image} style={{ height: 200, width: '100%' }} />
+            {note.image ? (
+              <Image source={{ uri: note.image }} style={{ height: 200, width: '100%' }} />
+            ) : null}
             <RichEditor
               ref={richText}
               style={[styles.editor, { backgroundColor: colourd }]}
@@ -664,7 +676,7 @@ export default function BuyScreen() {
                       onPress: async () => {
                         const imageUri = await takePhoto(); // ✅ Await the returned URI
                         if (imageUri) {
-                          richText.current?.insertImage(
+                          (richText.current as any)?.insertImage(
                             imageUri,
                             'width: 100%',
                           ); // ✅ Use the URI
@@ -676,7 +688,7 @@ export default function BuyScreen() {
                       onPress: async () => {
                         const imageUri = await pickImage(); // ✅ Await the returned URI
                         if (imageUri) {
-                          richText.current?.insertImage(
+                          (richText.current as any)?.insertImage(
                             imageUri,
                             'width: 100%',
                           ); // ✅ Use the URI
@@ -730,15 +742,17 @@ export default function BuyScreen() {
             <RoutineC
               visible={visiblel}
               setVisible={setVisiblel}
-              todos={todo}
-            ></RoutineC>
+              todos={todos}
+              setTodos={setTodos}
+              title={note.title}
+            />
           </View>
         ) : null}
         {String(type) === 'goals' ? (
           <View style={{ backgroundColor: colourd, flex: 1, padding: 0 }}>
             {/* Show all todos */}
-            {todo.map((todo) => (
-              <View key={todo.id} style={{ marginBottom: 15 }}>
+            {todo.map((goal) => (
+              <View key={goal.id} style={{ marginBottom: 15 }}>
                 {/* Main Todo */}
                 <TouchableOpacity
                   style={{
@@ -748,29 +762,29 @@ export default function BuyScreen() {
                   }}
                   onPress={() => {
                     const updated = todo.map((t) =>
-                      t.id === todo.id ? { ...t, checked: !t.checked } : t,
+                      t.id === goal.id ? { ...t, checked: !t.checked } : t,
                     );
                     setTodo(updated);
                     saveGoalsToStorage(updated);
                   }}
                 >
                   <Checkbox
-                    status={todo.checked ? 'checked' : 'unchecked'}
+                    status={goal.checked ? 'checked' : 'unchecked'}
                     color="#6A3EA1"
                   />
                   <Text
                     style={[
                       styles.todoText,
-                      todo.checked && styles.todoChecked,
+                      goal.checked && styles.todoChecked,
                     ]}
                   >
-                    {todo.text}
+                    {goal.text}
                   </Text>
                 </TouchableOpacity>
 
                 {/* Sub Todos */}
                 <View style={{ paddingLeft: 40 }}>
-                  {todo.subTodo.map((sub) => (
+                  {goal.subTodo.map((sub) => (
                     <TouchableOpacity
                       key={sub.ids}
                       style={{
@@ -780,7 +794,7 @@ export default function BuyScreen() {
                       }}
                       onPress={() => {
                         const updated = todo.map((t) =>
-                          t.id === todo.id
+                          t.id === goal.id
                             ? {
                                 ...t,
                                 subTodo: t.subTodo.map((s) =>
@@ -815,22 +829,22 @@ export default function BuyScreen() {
                   <TextInput
                     placeholder="Add subtask..."
                     style={styles.newItemInput}
-                    value={subTodoInputs[todo.id] || ''}
+                    value={subTodoInputs[goal.id] || ''}
                     onChangeText={(text) =>
                       setSubTodoInputs((prev) => ({
                         ...prev,
-                        [todo.id]: text,
+                        [goal.id]: text,
                       }))
                     }
                     onSubmitEditing={() =>
-                      addSubTodo(todo.id, subTodoInputs[todo.id] || '')
+                      addSubTodo(goal.id, subTodoInputs[goal.id] || '')
                     }
                     returnKeyType="done"
                   />
                   <TouchableOpacity
                     style={styles.addBtn}
                     onPress={() =>
-                      addSubTodo(todo.id, subTodoInputs[todo.id] || '')
+                      addSubTodo(goal.id, subTodoInputs[goal.id] || '')
                     }
                   >
                     <Ionicons name="add" size={20} color={'#6A3EA1'} />
@@ -956,7 +970,7 @@ export default function BuyScreen() {
                     for (const category of categories) {
                       if (db[category]) {
                         const noteIndex = db[category].findIndex(
-                          (n) => String(n.id) === String(id),
+                          (n: any) => String(n.id) === String(id),
                         );
                         if (noteIndex !== -1) {
                           db[category][noteIndex].backgroundcolor = item.colour; // update the note’s rich text
@@ -1010,7 +1024,13 @@ export default function BuyScreen() {
               </View>
             </View>
           </TouchableOpacity>
-          {show && <DateTimePicker mode={"date"} value={date} onChange={onchange} is24Hours={true} />}
+          {show && (
+            <DateTimePicker
+              mode="date"
+              value={date ?? new Date()}
+              onChange={onchange}
+            />
+          )}
           <TouchableOpacity>
             <View
               style={{
@@ -1082,7 +1102,6 @@ export default function BuyScreen() {
               <View
                 style={{
                   flexDirection: 'row',
-                  textAlign: 'left',
                   alignItems: 'center',
                 }}
               >
@@ -1113,7 +1132,6 @@ export default function BuyScreen() {
               <View
                 style={{
                   flexDirection: 'row',
-                  textAlign: 'left',
                   alignItems: 'center',
                 }}
               >
@@ -1143,7 +1161,6 @@ export default function BuyScreen() {
               <View
                 style={{
                   flexDirection: 'row',
-                  textAlign: 'left',
                   alignItems: 'center',
                 }}
               >
