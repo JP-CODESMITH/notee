@@ -33,10 +33,9 @@ export default function RootLayout() {
         if (!data) {
           const initialData = { idea: [], guidance: [], goals: [], routine:[],buying:[] };
           await AsyncStorage.setItem("notesDB", JSON.stringify(initialData));
-          console.log("DB initialized ✅");
         }
       } catch (e) {
-        console.log("Error initializing DB:", e);
+        console.warn("Error initializing DB:", e);
       }
     };
 

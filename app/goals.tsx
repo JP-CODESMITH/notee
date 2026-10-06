@@ -122,7 +122,7 @@ export default function GoalsScreen() {
       await AsyncStorage.setItem("notesDB", JSON.stringify(db));
 
       console.log("Note saved:", newNote); // ✅ Debug log
-      Alert.alert("Saved ✅", "Your todo list has been saved!");
+      Alert.alert("Saved", "Your todo list has been saved!");
       router.back();
     } catch (error) {
       console.log("Error saving note:", error);

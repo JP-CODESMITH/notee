@@ -327,13 +327,13 @@ export default function Finished() {
               }}
             >
               <TouchableOpacity onPress={unfinishedNote}>
-                <Text style={{ color: 'green', fontSize: 20 }}>↶ Unfinish</Text>
+                <Text style={{ color: 'green', fontSize: 20 }}>Unfinish</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={deleteSelected}>
-                <Text style={{ color: 'red', fontSize: 20 }}>🗑 Delete</Text>
+                <Text style={{ color: 'red', fontSize: 20 }}>Delete</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={pinSelected}>
-                <Text style={{ color: '#6A3EA1', fontSize: 20 }}>📌 Pin</Text>
+                <Text style={{ color: '#6A3EA1', fontSize: 20 }}>Pin</Text>
               </TouchableOpacity>
             </View>
           )}

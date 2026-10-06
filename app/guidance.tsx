@@ -75,7 +75,7 @@ export default function GuidanceScreen() {
 
       db.guidance.push(newNote);
       await AsyncStorage.setItem('notesDB', JSON.stringify(db));
-      Alert.alert('Saved ✅', 'Your note has been saved!');
+      Alert.alert('Saved', 'Your note has been saved!');
       router.back();
     } catch (error) {
       console.log('Error saving note:', error);

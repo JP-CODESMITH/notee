@@ -171,7 +171,6 @@ export default function BuyScreen() {
 
             // Save back to AsyncStorage
             await AsyncStorage.setItem('notesDB', JSON.stringify(db));
-            console.log('Todos saved successfully!');
             break;
           }
         }
@@ -331,7 +330,6 @@ export default function BuyScreen() {
       aspect: [4, 3],
       quality: 1,
     });
-    console.log(result);
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
@@ -383,7 +381,6 @@ export default function BuyScreen() {
         if (noteIndex !== -1) {
           db[category][noteIndex].rich = updatedGoals;
           await AsyncStorage.setItem('notesDB', JSON.stringify(db));
-          console.log('Goals saved!');
         }
       }
     } catch (e) {
