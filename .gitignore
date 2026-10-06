@@ -2,6 +2,9 @@
 
 # dependencies
 node_modules/
+bun.lockb
+.bun-cache/
+bun-debug.*
 
 # Expo
 .expo/
