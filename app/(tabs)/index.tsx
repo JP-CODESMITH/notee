@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
-import { Link } from 'expo-router';
+import { Link, useFocusEffect } from 'expo-router';
 import React, { useState } from 'react';
 import {
   FlatList,
