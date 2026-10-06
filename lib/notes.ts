@@ -186,3 +186,122 @@ export const ROUTINE_COLORS = [
   { colour: '#DAF6E4', text: '#1F7F40' },
   { colour: '#FDEBAB', text: '#725A03' },
 ];
+
+async function withDB<T>(fn: (db: any) => T | Promise<T>): Promise<T | null> {
+  try {
+    const raw = await AsyncStorage.getItem('notesDB');
+    const db = raw ? JSON.parse(raw) : { ...EMPTY_DB };
+    const result = await fn(db);
+    return result;
+  } catch (e) {
+    console.warn('notesDB error:', e);
+    return null;
+  }
+}
+
+function findNoteIndex(
+  db: any,
+  noteId: string | number,
+): { category: NoteCategory; index: number } | null {
+  for (const category of CATEGORIES) {
+    if (Array.isArray(db[category])) {
+      const index = db[category].findIndex(
+        (n: any) => String(n.id) === String(noteId),
+      );
+      if (index !== -1) return { category, index };
+    }
+  }
+  return null;
+}
+
+/** Persist a note's checklist/goals `rich` array. Returns true when saved. */
+export async function persistRich(
+  noteId: string | number,
+  rich: Note['rich'],
+): Promise<boolean> {
+  return (
+    (await withDB(async (db) => {
+      const found = findNoteIndex(db, noteId);
+      if (!found) return false;
+      db[found.category][found.index].rich = rich;
+      await AsyncStorage.setItem('notesDB', JSON.stringify(db));
+      return true;
+    })) ?? false
+  );
+}
+
+/** Persist a scalar field (`pin`, `finished`, `title`, `image`, `backgroundColor`). */
+export async function persistField(
+  noteId: string | number,
+  field: 'pin' | 'finished' | 'title' | 'image' | 'backgroundColor',
+  value: string | boolean | null,
+): Promise<boolean> {
+  return (
+    (await withDB(async (db) => {
+      const found = findNoteIndex(db, noteId);
+      if (!found) return false;
+      db[found.category][found.index][field] = value;
+      await AsyncStorage.setItem('notesDB', JSON.stringify(db));
+      return true;
+    })) ?? false
+  );
+}
+
+/** Delete a note by id across all categories. Returns true when removed. */
+export async function removeNote(noteId: string | number): Promise<boolean> {
+  return (
+    (await withDB(async (db) => {
+      let removed = false;
+      for (const category of CATEGORIES) {
+        if (Array.isArray(db[category])) {
+          const before = db[category].length;
+          db[category] = db[category].filter(
+            (n: any) => String(n.id) !== String(noteId),
+          );
+          if (db[category].length !== before) removed = true;
+        }
+      }
+      if (removed) {
+        await AsyncStorage.setItem('notesDB', JSON.stringify(db));
+      }
+      return removed;
+    })) ?? false
+  );
+}
+
+/** Goal progress helper for previews: { done, total }. */
+export function goalProgress(rich: Note['rich']): { done: number; total: number } {
+  if (!Array.isArray(rich)) return { done: 0, total: 0 };
+  let total = 0;
+  let done = 0;
+  for (const t of rich as any[]) {
+    total += 1;
+    if (t?.checked) done += 1;
+    if (Array.isArray(t?.subTodo)) {
+      for (const s of t.subTodo) {
+        total += 1;
+        if (s?.checked) done += 1;
+      }
+    }
+  }
+  return { done, total };
+}
+
+/** Checklist progress helper for previews. */
+export function checklistProgress(
+  rich: Note['rich'],
+  limit = 4,
+): { items: { id: string | number; text: string; checked: boolean }[]; done: number; total: number } {
+  if (!Array.isArray(rich)) return { items: [], done: 0, total: 0 };
+  const items = (rich as any[])
+    .filter((t) => t && typeof t.text === 'string')
+    .slice(0, limit)
+    .map((t) => ({
+      id: t.id as string | number,
+      text: t.text as string,
+      checked: Boolean(t.checked),
+    }));
+  const total = (rich as any[]).length;
+  const done = (rich as any[]).filter((t) => t?.checked).length;
+  return { items, done, total };
+}
