@@ -1,20 +1,13 @@
-import { Ionicons } from "@expo/vector-icons"; // ✅ import Ionicons
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { StyleSheet, View, Text } from "react-native"; // ✅ import View + Text
-import finished from "./finished";
-import HomeScreen from "./index";
-import News from "./new";
-import search from "./search";
-import settings from "./settings";
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import { StyleSheet, Text, View } from "react-native";
 
-const Tab = createBottomTabNavigator();
-
-const Tabs = () => {
+export default function TabsLayout() {
   return (
-    <Tab.Navigator
+    <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarShowLabel: false, // ✅ we’ll handle labels manually
+        tabBarShowLabel: false, // we render labels manually
         tabBarStyle: {
           position: "absolute",
           justifyContent: "center",
@@ -30,11 +23,11 @@ const Tabs = () => {
         },
       }}
     >
-      {/* 🏠 Home */}
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
+      {/* Home -> app/(tabs)/index.tsx */}
+      <Tabs.Screen
+        name="index"
         options={{
+          title: "Home",
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: "center", justifyContent: "center" }}>
               <Ionicons
@@ -52,11 +45,11 @@ const Tabs = () => {
         }}
       />
 
-      {/* ✅ Finished */}
-      <Tab.Screen
-        name="Finished"
-        component={finished}
+      {/* Finished -> app/(tabs)/finished.tsx */}
+      <Tabs.Screen
+        name="finished"
         options={{
+          title: "Finished",
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: "center", justifyContent: "center" }}>
               <Ionicons
@@ -73,10 +66,12 @@ const Tabs = () => {
           ),
         }}
       />
-      <Tab.Screen
-        name="News"
-        component={News}
+
+      {/* New -> app/(tabs)/new.tsx (center + button) */}
+      <Tabs.Screen
+        name="new"
         options={{
+          title: "News",
           tabBarIcon: ({ focused }) => (
             <View
               style={{
@@ -99,7 +94,7 @@ const Tabs = () => {
                 <Ionicons
                   name="add"
                   size={32}
-                  color="white" // ✅ always visible
+                  color="white" // always visible
                 />
               </View>
               <Text
@@ -115,11 +110,12 @@ const Tabs = () => {
           ),
         }}
       />
-      {/* 🔍 Search */}
-      <Tab.Screen
-        name="Search"
-        component={search}
+
+      {/* Search -> app/(tabs)/search.tsx */}
+      <Tabs.Screen
+        name="search"
         options={{
+          title: "Search",
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: "center", justifyContent: "center" }}>
               <Ionicons
@@ -137,11 +133,11 @@ const Tabs = () => {
         }}
       />
 
-      {/* ⚙️ Settings */}
-      <Tab.Screen
-        name="Settings"
-        component={settings}
+      {/* Settings -> app/(tabs)/settings.tsx */}
+      <Tabs.Screen
+        name="settings"
         options={{
+          title: "Settings",
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: "center", justifyContent: "center" }}>
               <Ionicons
@@ -158,9 +154,9 @@ const Tabs = () => {
           ),
         }}
       />
-    </Tab.Navigator>
+    </Tabs>
   );
-};
+}
 
 const styles = StyleSheet.create({
   shadow: {
@@ -174,5 +170,3 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
-
-export default Tabs;
