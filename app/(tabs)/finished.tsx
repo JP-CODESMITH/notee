@@ -2,13 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import React, { useState } from 'react';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-import { Checkbox } from 'react-native-paper';
-import RenderHTML from 'react-native-render-html';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import direction from '../../assets/images/Direction.png';
 import illustration from '../../assets/images/Illustration3.png';
 import sit from '../../assets/images/sit.png';
+import NoteCardPreview from '../../components/NoteCardPreview';
 
 export default function Finished() {
   const [notes, setNotes] = useState<any[]>([]);
@@ -216,9 +215,7 @@ export default function Finished() {
             numColumns={2}
             contentContainerStyle={{ gap: 10, padding: 10 }}
             columnWrapperStyle={{ gap: 10 }}
-            keyExtractor={(item) =>
-              item.id?.toString() || Math.random().toString()
-            }
+            keyExtractor={(item) => String(item.id)}
             renderItem={({ item }) => {
               const isSelected = selectedNotes.includes(item.id);
 
@@ -243,45 +240,7 @@ export default function Finished() {
                       opacity: isSelected ? 0.7 : 1,
                     }}
                   >
-                    <Text
-                      style={{
-                        fontWeight: 'bold',
-                        fontSize: 16,
-                        marginBottom: 5,
-                      }}
-                      numberOfLines={1}
-                    >
-                      {item.title || 'Untitled Note'}
-                    </Text>
-
-                    {/* Render based on category */}
-                    {item.category === 'idea' ||
-                    item.category === 'guidance' ? (
-                      <RenderHTML
-                        contentWidth={140}
-                        source={{ html: item.rich || '<p>No content</p>' }}
-                      />
-                    ) : null}
-
-                    {item.category === 'buying' && Array.isArray(item.rich) && (
-                      <View>
-                        {item.rich.map((todo: any) => (
-                          <View
-                            key={todo.id}
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                            }}
-                          >
-                            <Checkbox
-                              status={todo.checked ? 'checked' : 'unchecked'}
-                              color="#6A3EA1"
-                            />
-                            <Text>{todo.text}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    )}
+                    <NoteCardPreview note={item} contentWidth={140} />
 
                     {/* Footer */}
                     <View

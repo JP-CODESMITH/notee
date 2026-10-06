@@ -15,6 +15,7 @@ import RenderHTML from 'react-native-render-html';
 import { SafeAreaView } from 'react-native-safe-area-context'; // @ts-ignore
 import direction from '../../assets/images/Direction.png'; // @ts-ignore
 import illustration from '../../assets/images/Illustration.png';
+import NoteCardPreview from '../../components/NoteCardPreview';
 
 export default function HomeScreen() {
   const [notes, setNotes] = useState<any[]>([]);
@@ -317,7 +318,10 @@ export default function HomeScreen() {
                       >
                         <View
                           style={{
-                            backgroundColor: item.backgroundcolor || '#f5f5f5',
+                            backgroundColor:
+                              item.backgroundColor ||
+                              item.backgroundcolor ||
+                              '#f5f5f5',
                             marginVertical: 8,
                             borderRadius: 10,
                             height: 252,
@@ -329,58 +333,15 @@ export default function HomeScreen() {
                             opacity: isSelected ? 0.7 : 1,
                           }}
                         >
-                          <Text
-                            style={{
-                              fontWeight: 'bold',
-                              fontSize: 18,
-                              marginBottom: 5,
-                            }}
-                          >
-                            {item.title || 'Untitled Note'}
-                          </Text>
-
-                          {(item.type === 'buying' ||
-                            item.category === 'buying') &&
-                          Array.isArray(item.rich) ? (
-                            <View>
-                              {item.rich.map((todo: any) => (
-                                <View
-                                  key={todo.id}
-                                  style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    marginBottom: 4,
-                                  }}
-                                >
-                                  <Checkbox
-                                    status={
-                                      todo.checked ? 'checked' : 'unchecked'
-                                    }
-                                    onPress={() => toggleTodo(item.id, todo.id)}
-                                  />
-                                  <Text style={{ flex: 1, flexWrap: 'wrap' }}>
-                                    {todo.text}
-                                  </Text>
-                                </View>
-                              ))}
-                            </View>
-                          ) : (
-                            <RenderHTML
-                              contentWidth={180}
-                              source={{
-                                html:
-                                  typeof item.rich === 'string'
-                                    ? item.rich
-                                    : '<p>No content</p>',
-                              }}
-                            />
-                          )}
+                          <NoteCardPreview note={item} contentWidth={150} />
 
                           <View
                             style={{
                               position: 'absolute',
                               backgroundColor: getBackground(
-                                item.backgroundcolor || '#f5f5f5',
+                                item.backgroundColor ||
+                                  item.backgroundcolor ||
+                                  '#f5f5f5',
                               ),
                               bottom: 0,
                               left: 0,
@@ -480,59 +441,7 @@ export default function HomeScreen() {
                               opacity: isSelected ? 0.7 : 1,
                             }}
                           >
-                            <Text
-                              style={{
-                                fontWeight: 'bold',
-                                fontSize: 18,
-                                marginBottom: 5,
-                              }}
-                            >
-                              {item.title || 'Untitled Note'}
-                            </Text>
-                            {(item.type === 'buying' ||
-                              item.category === 'buying') &&
-                            Array.isArray(item.rich) ? (
-                              <View>
-                                {item.rich.map((todo: any) => (
-                                  <View
-                                    key={todo.id}
-                                    style={{
-                                      flexDirection: 'row',
-                                      alignItems: 'center',
-                                      marginBottom: 4,
-                                    }}
-                                  >
-                                    <Checkbox
-                                      status={
-                                        todo.checked ? 'checked' : 'unchecked'
-                                      }
-                                      onPress={() =>
-                                        toggleTodo(item.id, todo.id)
-                                      }
-                                    />
-                                    <Text style={{ flex: 1, flexWrap: 'wrap' }}>
-                                      {todo.text}
-                                    </Text>
-                                  </View>
-                                ))}
-                              </View>
-                            ) : null}
-                            {String(item.type) === 'idea' ? (
-                              <RenderHTML
-                                contentWidth={180}
-                                source={{
-                                  html:
-                                    typeof item.rich === 'string'
-                                      ? item.rich
-                                      : '<p>No content</p>',
-                                }}
-                              />
-                            ) : null}
-                            {String(item.type) === 'goals' ? (
-                              <>
-                                <Text>text</Text>
-                              </>
-                            ) : null}
+                            <NoteCardPreview note={item} contentWidth={150} />
                           </View>
                         </TouchableOpacity>
                       </Link>
