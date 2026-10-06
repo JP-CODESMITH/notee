@@ -32,12 +32,16 @@ export default function RoutineC({ visible, setVisible, todos, setTodos, title =
   const [input, setInput] = useState('');
 
   const firstRender = useRef(true);
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  });
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
       return;
     }
-    onChange?.(todos);
+    onChangeRef.current?.(todos);
   }, [todos]);
 
   const colour = [

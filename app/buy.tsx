@@ -86,7 +86,7 @@ export default function BuyScreen() {
   // @ts-ignore
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colourd }}>
-      <StatusBar backgroundColor="white" />
+      <StatusBar />
       {/* Header */}
       <View
         style={[

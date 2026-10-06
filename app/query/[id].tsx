@@ -47,6 +47,12 @@ interface Todo {
   subTodo: SubTodo[]; // Array for multiple subtodos
 }
 
+let localIdSeed = Date.now();
+const nextLocalId = () => {
+  localIdSeed += 1;
+  return localIdSeed;
+};
+
 export default function BuyScreen() {
   const router = useRouter();
   const [modal, setModal] = useState(false);
@@ -80,7 +86,7 @@ export default function BuyScreen() {
     const updated = [
       ...todo,
       {
-        id: Date.now(),
+        id: nextLocalId(),
         text,
         checked: false,
         subTodo: [],
@@ -374,7 +380,7 @@ export default function BuyScreen() {
   };
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colourd }}>
-      <StatusBar backgroundColor={colourd} />
+      <StatusBar />
 
       <View
         style={[

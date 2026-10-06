@@ -30,7 +30,7 @@ export default function News() {
     <SafeAreaView
       style={{ flex: 1, backgroundColor: 'white', alignItems: 'center' }}
     >
-      <StatusBar backgroundColor="white" />
+      <StatusBar />
       <View
         style={{
           height: 40,
