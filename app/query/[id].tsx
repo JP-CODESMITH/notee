@@ -27,6 +27,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import RoutineC from '../../components/routineC';
 import type { ChecklistItem } from '../../lib/notes';
+import {
+  persistField as persistNoteField,
+  persistRich as persistNoteRich,
+  removeNote as removeNoteById,
+} from '../../lib/notes';
 //@ts-config
 import ill from '../../assets/images/ill.png';
 interface SubTodo {
@@ -72,7 +77,7 @@ export default function BuyScreen() {
 
   const addTodos = (text: string) => {
     if (!text.trim()) return;
-    setTodo([
+    const updated = [
       ...todo,
       {
         id: Date.now(),
@@ -80,29 +85,47 @@ export default function BuyScreen() {
         checked: false,
         subTodo: [],
       },
-    ]);
+    ];
+    setTodo(updated);
+    saveGoalsToStorage(updated);
     setMainTodoInput('');
+  };
+
+  const deleteGoal = (todoId: number) => {
+    const updated = todo.filter((t) => t.id !== todoId);
+    setTodo(updated);
+    saveGoalsToStorage(updated);
+  };
+
+  const deleteSubTodo = (todoId: number, subId: string) => {
+    const updated = todo.map((t) =>
+      t.id === todoId
+        ? { ...t, subTodo: t.subTodo.filter((s) => s.ids !== subId) }
+        : t,
+    );
+    setTodo(updated);
+    saveGoalsToStorage(updated);
   };
 
   const addSubTodo = (todoId: number, text: string) => {
     if (!text.trim()) return;
-    setTodo((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === todoId
-          ? {
-              ...todo,
-              subTodo: [
-                ...todo.subTodo,
-                {
-                  ids: Date.now().toString(),
-                  subtext: text,
-                  checked: false,
-                },
-              ],
-            }
-          : todo,
-      ),
+    const updated = todo.map((t) =>
+      t.id === todoId
+        ? {
+            ...t,
+            subTodo: [
+              ...t.subTodo,
+              {
+                ids: Date.now().toString(),
+                subtext: text,
+                checked: false,
+              },
+            ],
+          }
+        : t,
     );
+    setTodo(updated);
+    saveGoalsToStorage(updated);
     setSubTodoInputs((prev) => ({ ...prev, [todoId]: '' }));
   };
   const richText = useRef<RichEditor | null>(null);
@@ -127,6 +150,7 @@ export default function BuyScreen() {
 
         if (foundNote) {
           setNote(foundNote);
+          setTitle(foundNote.title ?? '');
           setColourd(
             foundNote.backgroundColor ||
               foundNote.backgroundcolor ||
@@ -179,90 +203,37 @@ export default function BuyScreen() {
       console.error('Error saving todos:', error);
     }
   };
-  const persistField = async (field: 'pin' | 'finished', value: boolean) => {
-    try {
-      const dbString = await AsyncStorage.getItem('notesDB');
-      const db = dbString ? JSON.parse(dbString) : {};
-      const categories = ['idea', 'buying', 'routine', 'goals', 'guidance'];
-      for (const category of categories) {
-        if (Array.isArray(db[category])) {
-          const noteIndex = db[category].findIndex(
-            (n: any) => String(n.id) === String(id),
-          );
-          if (noteIndex !== -1) {
-            db[category][noteIndex][field] = value;
-            await AsyncStorage.setItem('notesDB', JSON.stringify(db));
-            setNote((prev: any) => (prev ? { ...prev, [field]: value } : prev));
-            return true;
-          }
-        }
-      }
-      return false;
-    } catch (error) {
-      console.error(`Error persisting ${field}:`, error);
-      return false;
+  const persistField = async (
+    field: 'pin' | 'finished' | 'title' | 'image' | 'backgroundColor',
+    value: string | boolean | null,
+  ) => {
+    const ok = await persistNoteField(id as string, field, value);
+    if (ok) {
+      setNote((prev: any) => (prev ? { ...prev, [field]: value } : prev));
     }
+    return ok;
+  };
+
+  const persistRoutine = async (next: ChecklistItem[]) => {
+    setTodos(next);
+    await persistNoteRich(id as string, next);
+  };
+
+  const saveTitle = async (next: string) => {
+    setTitle(next);
+    await persistField('title', next);
   };
 
   const deleteCurrentNote = async () => {
-    try {
-      const dbString = await AsyncStorage.getItem('notesDB');
-      const db = dbString ? JSON.parse(dbString) : {};
-      const categories = ['idea', 'buying', 'routine', 'goals', 'guidance'];
-      for (const category of categories) {
-        if (Array.isArray(db[category])) {
-          const before = db[category].length;
-          db[category] = db[category].filter(
-            (n: any) => String(n.id) !== String(id),
-          );
-          if (db[category].length !== before) {
-            await AsyncStorage.setItem('notesDB', JSON.stringify(db));
-            setModal(false);
-            router.back();
-            return true;
-          }
-        }
-      }
-      return false;
-    } catch (error) {
-      console.error('Error deleting note:', error);
-      return false;
+    const ok = await removeNoteById(id as string);
+    if (ok) {
+      setModal(false);
+      router.back();
     }
+    return ok;
   };
 
-  const saveNote = async (noteId: string | number, textId: string | number) => {
-    try {
-      const dbString = await AsyncStorage.getItem('notesDB');
-      const db = dbString ? JSON.parse(dbString) : {};
-      const categories = ['idea', 'buying', 'routine', 'goals', 'guidance'];
-      for (const category of categories) {
-        if (Array.isArray(db[category])) {
-          const noteIndex = db[category].findIndex(
-            (n: any) => String(n.id) === String(noteId),
-          );
-          if (noteIndex !== -1 && Array.isArray(db[category][noteIndex].rich)) {
-            const rich = db[category][noteIndex].rich;
-            const todoIndex = rich.findIndex(
-              (t: any) => String(t.id) === String(textId),
-            );
-            if (todoIndex !== -1) {
-              rich[todoIndex] = {
-                ...rich[todoIndex],
-                checked: !rich[todoIndex].checked,
-              };
-              await AsyncStorage.setItem('notesDB', JSON.stringify(db));
-              return true;
-            }
-          }
-        }
-      }
-      return false; // Not found
-    } catch (error) {
-      console.error('Error updating todo:', error);
-      return false;
-    }
-  };
-  // ✅ UPDATED: Toggle checkbox and save to storage
+  // Toggle checkbox and save to storage
   const toggleTodo = (todoId: number | string) => {
     const updatedTodos = todos.map((t) =>
       t.id === todoId ? { ...t, checked: !t.checked } : t,
@@ -282,7 +253,15 @@ export default function BuyScreen() {
 
   const addTodo = (text: string) => {
     if (!text.trim()) return;
-    setTodos([...todos, { id: Date.now(), text, checked: false }]);
+    const updated = [...todos, { id: Date.now(), text, checked: false }];
+    setTodos(updated);
+    updateTodoInStorage(updated);
+  };
+
+  const deleteTodoItem = (todoId: number | string) => {
+    const updated = todos.filter((t) => t.id !== todoId);
+    setTodos(updated);
+    updateTodoInStorage(updated);
   };
   const handleCustomAction = (action: string) => {
     switch (action) {
@@ -452,33 +431,64 @@ export default function BuyScreen() {
 
       {/* ✅ SIMPLIFIED: Removed FlatList, render directly */}
       <View style={{ flex: 1, backgroundColor: colourd, padding: 10 }}>
-        <Text
-          style={{ fontSize: 40, fontFamily: 'interBold', fontWeight: 'bold' }}
-        >
-          {note.title}
-        </Text>
+        <TextInput
+          accessibilityLabel="Note title"
+          style={{
+            fontSize: 40,
+            fontFamily: 'InterBold',
+            fontWeight: 'bold',
+            color: '#111',
+          }}
+          value={title}
+          onChangeText={setTitle}
+          onBlur={() => saveTitle(title)}
+          onSubmitEditing={() => saveTitle(title)}
+          placeholder="Untitled Note"
+          returnKeyType="done"
+        />
         {String(type) === 'buying' ? (
           <>
             {todos.map((todo) => (
-              <TouchableOpacity
-                key={todo.id}
+              <View
+                key={String(todo.id)}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
                   marginBottom: 10,
                 }}
-                onPress={() => toggleTodo(todo.id)}
               >
-                <Checkbox
-                  status={todo.checked ? 'checked' : 'unchecked'}
-                  color="#6A3EA1"
-                />
-                <Text
-                  style={[styles.todoText, todo.checked && styles.todoChecked]}
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={`Toggle ${todo.text}`}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    flex: 1,
+                  }}
+                  onPress={() => toggleTodo(todo.id)}
                 >
-                  {todo.text}
-                </Text>
-              </TouchableOpacity>
+                  <Checkbox
+                    status={todo.checked ? 'checked' : 'unchecked'}
+                    color="#6A3EA1"
+                  />
+                  <Text
+                    style={[
+                      styles.todoText,
+                      todo.checked && styles.todoChecked,
+                    ]}
+                  >
+                    {todo.text}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={`Delete ${todo.text}`}
+                  onPress={() => deleteTodoItem(todo.id)}
+                  style={{ padding: 8 }}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#999" />
+                </TouchableOpacity>
+              </View>
             ))}
 
             <KeyboardAvoidingView>
@@ -636,6 +646,24 @@ export default function BuyScreen() {
             {note.image ? (
               <Image source={{ uri: note.image }} style={{ height: 200, width: '100%' }} />
             ) : null}
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={note.image ? 'Change cover image' : 'Add cover image'}
+              style={styles.addBtn}
+              onPress={async () => {
+                const uri = await pickImage();
+                if (uri) {
+                  setImage(uri);
+                  setNote((prev: any) => (prev ? { ...prev, image: uri } : prev));
+                  await persistField('image', uri);
+                }
+              }}
+            >
+              <Ionicons name="image-outline" size={20} color="#6A3EA1" />
+              <Text style={styles.addBtnText}>
+                {note.image ? 'Change cover image' : 'Add cover image'}
+              </Text>
+            </TouchableOpacity>
             <RichEditor
               ref={richText}
               style={[styles.editor, { backgroundColor: colourd }]}
@@ -798,6 +826,7 @@ export default function BuyScreen() {
               todos={todos}
               setTodos={setTodos}
               title={note.title}
+              onChange={(next) => persistNoteRich(id as string, next)}
             />
           </View>
         ) : null}
@@ -807,75 +836,111 @@ export default function BuyScreen() {
             {todo.map((goal) => (
               <View key={goal.id} style={{ marginBottom: 15 }}>
                 {/* Main Todo */}
-                <TouchableOpacity
+                <View
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
                     marginBottom: 5,
                   }}
-                  onPress={() => {
-                    const updated = todo.map((t) =>
-                      t.id === goal.id ? { ...t, checked: !t.checked } : t,
-                    );
-                    setTodo(updated);
-                    saveGoalsToStorage(updated);
-                  }}
                 >
-                  <Checkbox
-                    status={goal.checked ? 'checked' : 'unchecked'}
-                    color="#6A3EA1"
-                  />
-                  <Text
-                    style={[
-                      styles.todoText,
-                      goal.checked && styles.todoChecked,
-                    ]}
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel={`Toggle ${goal.text}`}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      flex: 1,
+                    }}
+                    onPress={() => {
+                      const updated = todo.map((t) =>
+                        t.id === goal.id ? { ...t, checked: !t.checked } : t,
+                      );
+                      setTodo(updated);
+                      saveGoalsToStorage(updated);
+                    }}
                   >
-                    {goal.text}
-                  </Text>
-                </TouchableOpacity>
+                    <Checkbox
+                      status={goal.checked ? 'checked' : 'unchecked'}
+                      color="#6A3EA1"
+                    />
+                    <Text
+                      style={[
+                        styles.todoText,
+                        goal.checked && styles.todoChecked,
+                      ]}
+                    >
+                      {goal.text}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityLabel={`Delete ${goal.text}`}
+                    onPress={() => deleteGoal(goal.id)}
+                    style={{ padding: 8 }}
+                  >
+                    <Ionicons name="trash-outline" size={20} color="#999" />
+                  </TouchableOpacity>
+                </View>
 
                 {/* Sub Todos */}
                 <View style={{ paddingLeft: 40 }}>
                   {goal.subTodo.map((sub) => (
-                    <TouchableOpacity
+                    <View
                       key={sub.ids}
                       style={{
                         flexDirection: 'row',
                         alignItems: 'center',
                         marginBottom: 5,
                       }}
-                      onPress={() => {
-                        const updated = todo.map((t) =>
-                          t.id === goal.id
-                            ? {
-                                ...t,
-                                subTodo: t.subTodo.map((s) =>
-                                  s.ids === sub.ids
-                                    ? { ...s, checked: !s.checked }
-                                    : s,
-                                ),
-                              }
-                            : t,
-                        );
-
-                        setTodo(updated);
-                        saveGoalsToStorage(updated);
-                      }}
                     >
-                      <Checkbox
-                        status={sub.checked ? 'checked' : 'unchecked'}
-                        color="#6A3EA1"
-                      />
-                      <Text
-                        style={[
-                          styles.todoText,
-                          sub.checked && styles.todoChecked,
-                        ]}
+                      <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel={`Toggle ${sub.subtext}`}
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          flex: 1,
+                        }}
+                        onPress={() => {
+                          const updated = todo.map((t) =>
+                            t.id === goal.id
+                              ? {
+                                  ...t,
+                                  subTodo: t.subTodo.map((s) =>
+                                    s.ids === sub.ids
+                                      ? { ...s, checked: !s.checked }
+                                      : s,
+                                  ),
+                                }
+                              : t,
+                          );
+
+                          setTodo(updated);
+                          saveGoalsToStorage(updated);
+                        }}
                       >
-                        {sub.subtext}
-                      </Text>
-                    </TouchableOpacity>
+                        <Checkbox
+                          status={sub.checked ? 'checked' : 'unchecked'}
+                          color="#6A3EA1"
+                        />
+                        <Text
+                          style={[
+                            styles.todoText,
+                            sub.checked && styles.todoChecked,
+                          ]}
+                        >
+                          {sub.subtext}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel={`Delete ${sub.subtext}`}
+                        onPress={() => deleteSubTodo(goal.id, sub.ids)}
+                        style={{ padding: 8 }}
+                      >
+                        <Ionicons name="trash-outline" size={18} color="#999" />
+                      </TouchableOpacity>
+                    </View>
                   ))}
 
                   {/* Add subtask input */}

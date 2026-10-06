@@ -1,5 +1,5 @@
 import { Entypo, FontAwesome } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -22,13 +22,23 @@ interface RoutineCProps {
   todos: ChecklistItem[];
   setTodos: React.Dispatch<React.SetStateAction<ChecklistItem[]>>;
   title?: string;
+  onChange?: (next: ChecklistItem[]) => void;
 }
 
-export default function RoutineC({ visible, setVisible, todos, setTodos, title = '' }: RoutineCProps) {
+export default function RoutineC({ visible, setVisible, todos, setTodos, title = '', onChange }: RoutineCProps) {
   const [colourk, setColourk] = useState('white');
   const [colourt, setColourt] = useState('black');
   const [inputT, setInputT] = useState('');
   const [input, setInput] = useState('');
+
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    onChange?.(todos);
+  }, [todos]);
 
   const colour = [
     { id: 1, colour: '#F7F6D4', text: '#565510' },
