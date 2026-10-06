@@ -128,8 +128,13 @@ export default function BuyScreen() {
         if (foundNote) {
           setNote(foundNote);
           setColourd(
-            foundNote.backgroundcolor || foundNote.backgroudcolor || '#FFFFFF',
+            foundNote.backgroundColor ||
+              foundNote.backgroundcolor ||
+              foundNote.backgroudcolor ||
+              '#FFFFFF',
           );
+          setPinned(Boolean(foundNote.pin));
+          setFinish(Boolean(foundNote.finished));
           setTodos(Array.isArray(foundNote.rich) ? foundNote.rich : []);
           setTodo(Array.isArray(foundNote.rich) ? foundNote.rich : []);
         }
@@ -175,6 +180,57 @@ export default function BuyScreen() {
       console.error('Error saving todos:', error);
     }
   };
+  const persistField = async (field: 'pin' | 'finished', value: boolean) => {
+    try {
+      const dbString = await AsyncStorage.getItem('notesDB');
+      const db = dbString ? JSON.parse(dbString) : {};
+      const categories = ['idea', 'buying', 'routine', 'goals', 'guidance'];
+      for (const category of categories) {
+        if (Array.isArray(db[category])) {
+          const noteIndex = db[category].findIndex(
+            (n: any) => String(n.id) === String(id),
+          );
+          if (noteIndex !== -1) {
+            db[category][noteIndex][field] = value;
+            await AsyncStorage.setItem('notesDB', JSON.stringify(db));
+            setNote((prev: any) => (prev ? { ...prev, [field]: value } : prev));
+            return true;
+          }
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error(`Error persisting ${field}:`, error);
+      return false;
+    }
+  };
+
+  const deleteCurrentNote = async () => {
+    try {
+      const dbString = await AsyncStorage.getItem('notesDB');
+      const db = dbString ? JSON.parse(dbString) : {};
+      const categories = ['idea', 'buying', 'routine', 'goals', 'guidance'];
+      for (const category of categories) {
+        if (Array.isArray(db[category])) {
+          const before = db[category].length;
+          db[category] = db[category].filter(
+            (n: any) => String(n.id) !== String(id),
+          );
+          if (db[category].length !== before) {
+            await AsyncStorage.setItem('notesDB', JSON.stringify(db));
+            setModal(false);
+            router.back();
+            return true;
+          }
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      return false;
+    }
+  };
+
   const saveNote = async (noteId: string | number, textId: string | number) => {
     try {
       const dbString = await AsyncStorage.getItem('notesDB');
@@ -1086,8 +1142,12 @@ export default function BuyScreen() {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => {
-              setPinned(true);
+            accessibilityRole="button"
+            accessibilityLabel="Pin the note"
+            onPress={async () => {
+              const next = !pinned;
+              setPinned(next);
+              await persistField('pin', next);
               setModall(true);
             }}
           >
@@ -1117,8 +1177,13 @@ export default function BuyScreen() {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => {
-              setFinish(false);
+            accessibilityRole="button"
+            accessibilityLabel="Mark as finished"
+            onPress={async () => {
+              const next = !finish;
+              setFinish(next);
+              await persistField('finished', next);
+              setModal(false);
             }}
           >
             <View
@@ -1149,7 +1214,20 @@ export default function BuyScreen() {
         </>
         <Divider />
         <>
-          <TouchableOpacity>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Delete note"
+            onPress={() => {
+              Alert.alert('Delete note?', 'This cannot be undone.', [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete',
+                  style: 'destructive',
+                  onPress: () => deleteCurrentNote(),
+                },
+              ]);
+            }}
+          >
             <View
               style={{
                 height: 56,

@@ -13,8 +13,8 @@ export default function OnboardingScreen() {
     try {
       // Save onboarding completion
       await AsyncStorage.setItem("hasSeenOnboarding", "true");
-      // Navigate to tabs
-      router.replace("/username");
+      // Navigate to username gate (route group: /[auth]/username)
+      router.replace('/[auth]/username');
     } catch (error) {
       console.log("Error saving onboarding state:", error);
     }

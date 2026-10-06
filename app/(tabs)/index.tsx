@@ -135,12 +135,11 @@ export default function HomeScreen() {
           setNotes([
             ...(db.idea || []),
             ...(db.buying || []),
+            ...(db.buy || []),
             ...(db.routine || []),
             ...(db.goals || []),
             ...(db.guidance || []),
           ]);
-
-          console.log(dbString);
         } else {
           setNotes([]);
         }
@@ -215,7 +214,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView
-      style={{ backgroundColor: '#FAF8FC0', flex: 1, gap: 48, padding: 5 }}
+      style={{ backgroundColor: '#FAF8FC', flex: 1, gap: 48, padding: 5 }}
     >
       {regularCount === 0 && pinnedCount === 0 ? (
         <View
@@ -263,7 +262,7 @@ export default function HomeScreen() {
           </View>
         </View>
       ) : (
-        <ScrollView style={{ backgroundColor: '#FAF8FC0', flex: 1 }}>
+        <ScrollView style={{ backgroundColor: '#FAF8FC', flex: 1 }}>
           {/* ----- Pinned Notes ----- */}
           {pinnedCount > 0 && (
             <View>
@@ -297,9 +296,7 @@ export default function HomeScreen() {
                   maxHeight: 260,
                   paddingLeft: 20,
                 }}
-                keyExtractor={(item) =>
-                  item.id?.toString() || Math.random().toString()
-                }
+                keyExtractor={(item) => String(item.id)}
                 renderItem={({ item }) => {
                   const isSelected = selectedPins.includes(item.id);
 
@@ -561,13 +558,13 @@ export default function HomeScreen() {
           }}
         >
           <TouchableOpacity onPress={pinSelected}>
-            <Text style={{ color: 'green', fontSize: 20 }}>📌 Pin</Text>
+            <Text style={{ color: 'green', fontSize: 20 }}>Pin</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={finishedNote}>
-            <Text style={{ color: 'green', fontSize: 20 }}>✅ Finished</Text>
+            <Text style={{ color: 'green', fontSize: 20 }}>Finished</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={deleteSelected}>
-            <Text style={{ color: 'red', fontSize: 20 }}>🗑 Delete</Text>
+            <Text style={{ color: 'red', fontSize: 20 }}>Delete</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -585,10 +582,10 @@ export default function HomeScreen() {
           }}
         >
           <TouchableOpacity onPress={pinSelectedPin}>
-            <Text style={{ color: 'green', fontSize: 20 }}>📌 unPin</Text>
+            <Text style={{ color: 'green', fontSize: 20 }}>Unpin</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={deleteSelectedPin}>
-            <Text style={{ color: 'red', fontSize: 20 }}>🗑 Delete</Text>
+            <Text style={{ color: 'red', fontSize: 20 }}>Delete</Text>
           </TouchableOpacity>
         </View>
       )}

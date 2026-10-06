@@ -12,7 +12,6 @@ import sit from '../../assets/images/sit.png';
 
 export default function Finished() {
   const [notes, setNotes] = useState<any[]>([]);
-  // @ts-ignore
   const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
 
   // 🔹 Load all notes
@@ -25,11 +24,11 @@ export default function Finished() {
           setNotes([
             ...(db.idea || []),
             ...(db.buying || []),
+            ...(db.buy || []),
             ...(db.routine || []),
             ...(db.goals || []),
             ...(db.guidance || []),
           ]);
-          console.log(dbString);
         } else {
           setNotes([]);
         }
@@ -57,11 +56,12 @@ export default function Finished() {
       : { idea: [], buying: [], routine: [], goals: [], guidance: [] };
 
     // rebuild categories from updatedNotes
-    db.idea = updatedNotes.filter((n) => n.category === 'idea');
-    db.buying = updatedNotes.filter((n) => n.category === 'buying');
-    db.routine = updatedNotes.filter((n) => n.category === 'routine');
-    db.goals = updatedNotes.filter((n) => n.category === 'goals');
-    db.guidance = updatedNotes.filter((n) => n.category === 'guidance');
+    const catOf = (n: any) => n.type || n.category || 'idea';
+    db.idea = updatedNotes.filter((n) => catOf(n) === 'idea');
+    db.buying = updatedNotes.filter((n) => catOf(n) === 'buying');
+    db.routine = updatedNotes.filter((n) => catOf(n) === 'routine');
+    db.goals = updatedNotes.filter((n) => catOf(n) === 'goals');
+    db.guidance = updatedNotes.filter((n) => catOf(n) === 'guidance');
 
     await AsyncStorage.setItem('notesDB', JSON.stringify(db));
     setNotes(updatedNotes);
