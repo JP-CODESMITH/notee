@@ -3,8 +3,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  Text,
+  TouchableHighlight,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { TAB_BAR_CLEARANCE } from '../../constants/layout';
 
 export default function News() {
   let username: string,
@@ -27,12 +34,11 @@ export default function News() {
   }, []);
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: 'white', alignItems: 'center' }}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar />
       <View
         style={{
+          width: '100%',
           height: 40,
           backgroundColor: 'white',
           justifyContent: 'center',
@@ -60,7 +66,13 @@ export default function News() {
         </Text>
       </View>
       <View
-        style={{ width: '95%', height: 576, justifyContent: 'space-between' }}
+        style={{
+          flex: 1,
+          width: '100%',
+          paddingHorizontal: 12,
+          paddingTop: 16,
+          gap: 16,
+        }}
       >
         <View>
           <Text
@@ -71,17 +83,21 @@ export default function News() {
               fontFamily: 'InterBold',
               fontWeight: 'bold',
               textAlign: 'left',
-              width: '80%',
+              width: '100%',
             }}
           >
             What Do You Want to Notes?
           </Text>
         </View>
-        <View style={{ height: 486, justifyContent: 'space-between' }}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ gap: 12, paddingBottom: TAB_BAR_CLEARANCE }}
+          showsVerticalScrollIndicator={false}
+        >
           <TouchableHighlight
             style={{
               width: '100%',
-              height: 75,
+              minHeight: 75,
               backgroundColor: '#6A3EA1',
               borderRadius: 15,
             }}
@@ -93,7 +109,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                height: 75,
+                minHeight: 75,
               }}
             >
               <View
@@ -162,7 +178,7 @@ export default function News() {
           <TouchableOpacity
             style={{
               width: '100%',
-              height: 75,
+              minHeight: 75,
               backgroundColor: '#60D889',
               borderRadius: 15,
             }}
@@ -174,7 +190,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                height: 75,
+                minHeight: 75,
               }}
             >
               <View
@@ -243,7 +259,7 @@ export default function News() {
           <TouchableHighlight
             style={{
               width: '100%',
-              height: 75,
+              minHeight: 75,
               backgroundColor: '#F8C715',
               borderRadius: 15,
             }}
@@ -255,7 +271,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                height: 75,
+                minHeight: 75,
               }}
             >
               <View
@@ -324,7 +340,7 @@ export default function News() {
           <TouchableHighlight
             style={{
               width: '100%',
-              height: 75,
+              minHeight: 75,
               backgroundColor: '#CE3A54',
               borderRadius: 15,
             }}
@@ -336,7 +352,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                height: 75,
+                minHeight: 75,
               }}
             >
               <View
@@ -405,7 +421,7 @@ export default function News() {
           <TouchableHighlight
             style={{
               width: '100%',
-              height: 75,
+              minHeight: 75,
               backgroundColor: '#DEDC52',
               borderRadius: 15,
             }}
@@ -417,7 +433,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                height: 75,
+                minHeight: 75,
               }}
             >
               <View
@@ -482,7 +498,7 @@ export default function News() {
               </View>
             </View>
           </TouchableHighlight>
-        </View>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
