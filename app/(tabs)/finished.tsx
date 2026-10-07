@@ -8,6 +8,7 @@ import direction from '../../assets/images/Direction.png';
 import illustration from '../../assets/images/Illustration3.png';
 import sit from '../../assets/images/sit.png';
 import NoteCardPreview from '../../components/NoteCardPreview';
+import { ACTION_BAR_BOTTOM, TAB_BAR_CLEARANCE } from '../../constants/layout';
 
 export default function Finished() {
   const [notes, setNotes] = useState<any[]>([]);
@@ -213,7 +214,11 @@ export default function Finished() {
           <FlatList
             data={finishedNotes}
             numColumns={2}
-            contentContainerStyle={{ gap: 10, padding: 10 }}
+            contentContainerStyle={{
+              gap: 10,
+              padding: 10,
+              paddingBottom: TAB_BAR_CLEARANCE,
+            }}
             columnWrapperStyle={{ gap: 10 }}
             keyExtractor={(item) => String(item.id)}
             renderItem={({ item }) => {
@@ -282,7 +287,7 @@ export default function Finished() {
                 backgroundColor: '#FAF8FC',
                 position: 'absolute',
                 width: '100%',
-                bottom: 70,
+                bottom: ACTION_BAR_BOTTOM,
               }}
             >
               <TouchableOpacity onPress={unfinishedNote}>
