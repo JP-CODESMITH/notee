@@ -1,17 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Link, useFocusEffect } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  FlatList,
-  Image,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import RenderHTML from 'react-native-render-html';
 import { SafeAreaView } from 'react-native-safe-area-context'; // @ts-ignore
+import { ACTION_BAR_BOTTOM, TAB_BAR_CLEARANCE } from '../../constants/layout';
 import direction from '../../assets/images/Direction.png'; // @ts-ignore
 import illustration from '../../assets/images/Illustration.png';
 import NoteCardPreview from '../../components/NoteCardPreview';
@@ -213,9 +207,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={{ backgroundColor: '#FAF8FC', flex: 1, gap: 48, padding: 5 }}
-    >
+    <SafeAreaView style={{ backgroundColor: '#FAF8FC', flex: 1 }}>
       {regularCount === 0 && pinnedCount === 0 ? (
         <View
           style={{
@@ -262,195 +254,194 @@ export default function HomeScreen() {
           </View>
         </View>
       ) : (
-        <ScrollView style={{ backgroundColor: '#FAF8FC', flex: 1 }}>
-          {/* ----- Pinned Notes ----- */}
-          {pinnedCount > 0 && (
-            <View>
-              <View
-                style={{
-                  marginTop: 34,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: 'InterBold',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                  }}
-                >
-                  Pinned Notes
-                </Text>
-                <TouchableOpacity>
-                  <Text style={{ color: '#6A3EA1' }}>View all</Text>
-                </TouchableOpacity>
-              </View>
-
-              <FlatList
-                data={pinnedNotes}
-                horizontal
-                contentContainerStyle={{
-                  gap: 10,
-                  maxHeight: 260,
-                  paddingLeft: 20,
-                }}
-                keyExtractor={(item) => String(item.id)}
-                renderItem={({ item }) => {
-                  const isSelected = selectedPins.includes(item.id);
-
-                  return (
-                    <Link
-                      href={{
-                        pathname: '../query/[id]',
-                        params: {
-                          id: item.id,
-                          type: item.type || item.category,
-                        },
+        <FlatList
+          data={regularNotes}
+          numColumns={2}
+          style={{ backgroundColor: '#FAF8FC', flex: 1 }}
+          contentContainerStyle={{
+            gap: 10,
+            padding: 10,
+            paddingBottom: TAB_BAR_CLEARANCE,
+          }}
+          columnWrapperStyle={{ gap: 10 }}
+          keyExtractor={(item, index) => item.id?.toString() ?? String(index)}
+          keyboardDismissMode={'on-drag'}
+          ListHeaderComponent={
+            <>
+              {/* ----- Pinned Notes ----- */}
+              {pinnedCount > 0 && (
+                <View>
+                  <View
+                    style={{
+                      marginTop: 34,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: 'InterBold',
+                        fontSize: 15,
+                        fontWeight: 'bold',
                       }}
-                      asChild
                     >
-                      <TouchableOpacity
-                        onLongPress={() => toggleSelectPin(item.id)}
-                        activeOpacity={0.8}
-                      >
-                        <View
-                          style={{
-                            backgroundColor:
-                              item.backgroundColor ||
-                              item.backgroundcolor ||
-                              '#f5f5f5',
-                            marginVertical: 8,
-                            borderRadius: 10,
-                            height: 252,
-                            width: 180,
-                            padding: 8,
-                            overflow: 'hidden',
-                            borderWidth: isSelected ? 3 : 0,
-                            borderColor: isSelected ? '#6A3EA1' : 'transparent',
-                            opacity: isSelected ? 0.7 : 1,
-                          }}
-                        >
-                          <NoteCardPreview note={item} contentWidth={150} />
+                      Pinned Notes
+                    </Text>
+                    <TouchableOpacity>
+                      <Text style={{ color: '#6A3EA1' }}>View all</Text>
+                    </TouchableOpacity>
+                  </View>
 
-                          <View
-                            style={{
-                              position: 'absolute',
-                              backgroundColor: getBackground(
-                                item.backgroundColor ||
+                  <FlatList
+                    data={pinnedNotes}
+                    horizontal
+                    contentContainerStyle={{
+                      gap: 10,
+                      paddingLeft: 20,
+                      paddingRight: 20,
+                    }}
+                    keyExtractor={(item) => String(item.id)}
+                    renderItem={({ item }) => {
+                      const isSelected = selectedPins.includes(item.id);
+
+                      return (
+                        <Link
+                          href={{
+                            pathname: '../query/[id]',
+                            params: {
+                              id: item.id,
+                              type: item.type || item.category,
+                            },
+                          }}
+                          asChild
+                        >
+                          <TouchableOpacity
+                            onLongPress={() => toggleSelectPin(item.id)}
+                            activeOpacity={0.8}
+                          >
+                            <View
+                              style={{
+                                backgroundColor:
+                                  item.backgroundColor ||
                                   item.backgroundcolor ||
                                   '#f5f5f5',
-                              ),
-                              bottom: 0,
-                              left: 0,
-                              width: '110%',
-                              height: 28,
-                              paddingLeft: 20,
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <Text style={{ color: 'white' }}>
-                              {item.type === 'buying' ||
-                              item.category === 'buying'
-                                ? 'Checklist'
-                                : 'Interesting Ideas'}
-                            </Text>
-                          </View>
-                        </View>
-                      </TouchableOpacity>
-                    </Link>
-                  );
-                }}
-              />
-            </View>
-          )}
+                                marginVertical: 8,
+                                borderRadius: 10,
+                                height: 252,
+                                width: 180,
+                                padding: 8,
+                                overflow: 'hidden',
+                                borderWidth: isSelected ? 3 : 0,
+                                borderColor: isSelected
+                                  ? '#6A3EA1'
+                                  : 'transparent',
+                                opacity: isSelected ? 0.7 : 1,
+                              }}
+                            >
+                              <NoteCardPreview note={item} contentWidth={150} />
 
-          {/* ----- Regular Notes ----- */}
-          {regularCount > 0 && (
-            <View style={{ marginTop: 20 }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                              <View
+                                style={{
+                                  position: 'absolute',
+                                  backgroundColor: getBackground(
+                                    item.backgroundColor ||
+                                      item.backgroundcolor ||
+                                      '#f5f5f5',
+                                  ),
+                                  bottom: 0,
+                                  left: 0,
+                                  width: '110%',
+                                  height: 28,
+                                  paddingLeft: 20,
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <Text style={{ color: 'white' }}>
+                                  {item.type === 'buying' ||
+                                  item.category === 'buying'
+                                    ? 'Checklist'
+                                    : 'Interesting Ideas'}
+                                </Text>
+                              </View>
+                            </View>
+                          </TouchableOpacity>
+                        </Link>
+                      );
+                    }}
+                  />
+                </View>
+              )}
+
+              {/* ----- Regular Notes ----- */}
+              {regularCount > 0 && (
+                <View style={{ marginTop: 20 }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: 'InterBold',
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      Interesting Ideas
+                    </Text>
+                    <TouchableOpacity>
+                      <Text style={{ color: '#6A3EA1' }}>View all</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+            </>
+          }
+          renderItem={({ item }) => {
+            const isSelected = selectedNotes.includes(item.id);
+            return (
+              <Link
+                href={{
+                  pathname: '../query/[id]',
+                  params: {
+                    id: item.id,
+                    type: item.type || item.category,
+                  },
                 }}
+                asChild
               >
-                <Text
-                  style={{
-                    fontFamily: 'InterBold',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                  }}
+                <TouchableOpacity
+                  onLongPress={() => toggleSelect(item.id)}
+                  activeOpacity={0.8}
+                  style={{ width: '48%' }}
                 >
-                  Interesting Ideas
-                </Text>
-                <TouchableOpacity>
-                  <Text style={{ color: '#6A3EA1' }}>View all</Text>
+                  <View
+                    style={{
+                      backgroundColor:
+                        item.backgroundColor ||
+                        item.backgroundcolor ||
+                        '#f5f5f5',
+                      marginVertical: 8,
+                      borderRadius: 10,
+                      height: 252,
+                      padding: 8,
+                      margin: 8,
+                      overflow: 'hidden',
+                      borderWidth: isSelected ? 3 : 0,
+                      borderColor: isSelected ? '#6A3EA1' : 'transparent',
+                      opacity: isSelected ? 0.7 : 1,
+                    }}
+                  >
+                    <NoteCardPreview note={item} contentWidth={150} />
+                  </View>
                 </TouchableOpacity>
-              </View>
-              <View>
-                <FlatList
-                  data={regularNotes}
-                  numColumns={2}
-                  contentContainerStyle={{
-                    gap: 10,
-                    padding: 10,
-                    marginBottom: 500,
-                  }}
-                  columnWrapperStyle={{ gap: 10 }}
-                  keyExtractor={(item) =>
-                    item.id?.toString() || Math.random().toString()
-                  }
-                  keyboardDismissMode={'on-drag'}
-                  renderItem={({ item }) => {
-                    const isSelected = selectedNotes.includes(item.id);
-                    return (
-                      <Link
-                        href={{
-                          pathname: '../query/[id]',
-                          params: {
-                            id: item.id,
-                            type: item.type || item.category,
-                          },
-                        }}
-                        asChild
-                      >
-                        <TouchableOpacity
-                          onLongPress={() => toggleSelect(item.id)}
-                          activeOpacity={0.8}
-                          style={{ width: '48%' }}
-                        >
-                          <View
-                            style={{
-                              backgroundColor:
-                                item.backgroundColor ||
-                                item.backgroundcolor ||
-                                '#f5f5f5',
-                              marginVertical: 8,
-                              borderRadius: 10,
-                              height: 252,
-                              padding: 8,
-                              margin: 8,
-                              overflow: 'hidden',
-                              borderWidth: isSelected ? 3 : 0,
-                              borderColor: isSelected
-                                ? '#6A3EA1'
-                                : 'transparent',
-                              opacity: isSelected ? 0.7 : 1,
-                            }}
-                          >
-                            <NoteCardPreview note={item} contentWidth={150} />
-                          </View>
-                        </TouchableOpacity>
-                      </Link>
-                    );
-                  }}
-                />
-              </View>
-            </View>
-          )}
-        </ScrollView>
+              </Link>
+            );
+          }}
+        />
       )}
 
       {/* Action buttons for selected notes */}
@@ -461,7 +452,7 @@ export default function HomeScreen() {
             justifyContent: 'space-around',
             padding: 10,
             position: 'absolute',
-            bottom: 90,
+            bottom: ACTION_BAR_BOTTOM,
             width: '100%',
           }}
         >
@@ -485,7 +476,7 @@ export default function HomeScreen() {
             justifyContent: 'space-around',
             padding: 10,
             position: 'absolute',
-            bottom: 90,
+            bottom: ACTION_BAR_BOTTOM,
             width: '100%',
           }}
         >
