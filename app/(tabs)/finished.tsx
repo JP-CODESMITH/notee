@@ -8,7 +8,11 @@ import direction from '../../assets/images/Direction.png';
 import illustration from '../../assets/images/Illustration3.png';
 import sit from '../../assets/images/sit.png';
 import NoteCardPreview from '../../components/NoteCardPreview';
-import { ACTION_BAR_BOTTOM, TAB_BAR_CLEARANCE } from '../../constants/layout';
+import SelectionBar from '../../components/SelectionBar';
+import {
+  SELECTION_BAR_CLEARANCE,
+  TAB_BAR_CLEARANCE,
+} from '../../constants/layout';
 
 export default function Finished() {
   const [notes, setNotes] = useState<any[]>([]);
@@ -217,7 +221,10 @@ export default function Finished() {
             contentContainerStyle={{
               gap: 10,
               padding: 10,
-              paddingBottom: TAB_BAR_CLEARANCE,
+              paddingBottom:
+                selectedNotes.length > 0
+                  ? SELECTION_BAR_CLEARANCE
+                  : TAB_BAR_CLEARANCE,
             }}
             columnWrapperStyle={{ gap: 10 }}
             keyExtractor={(item) => String(item.id)}
@@ -279,27 +286,18 @@ export default function Finished() {
 
           {/* Action Buttons */}
           {selectedNotes.length > 0 && (
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                padding: 10,
-                backgroundColor: '#FAF8FC',
-                position: 'absolute',
-                width: '100%',
-                bottom: ACTION_BAR_BOTTOM,
-              }}
-            >
-              <TouchableOpacity onPress={unfinishedNote}>
-                <Text style={{ color: 'green', fontSize: 20 }}>Unfinish</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={deleteSelected}>
-                <Text style={{ color: 'red', fontSize: 20 }}>Delete</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={pinSelected}>
-                <Text style={{ color: '#6A3EA1', fontSize: 20 }}>Pin</Text>
-              </TouchableOpacity>
-            </View>
+            <SelectionBar
+              actions={[
+                { label: 'Unfinish', color: 'green', onPress: unfinishedNote },
+                {
+                  label: 'Delete',
+                  color: 'red',
+                  onPress: deleteSelected,
+                  destructive: true,
+                },
+                { label: 'Pin', color: '#6A3EA1', onPress: pinSelected },
+              ]}
+            />
           )}
         </View>
       )}

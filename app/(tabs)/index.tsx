@@ -5,7 +5,12 @@ import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import { Checkbox } from 'react-native-paper';
 import RenderHTML from 'react-native-render-html';
 import { SafeAreaView } from 'react-native-safe-area-context'; // @ts-ignore
-import { ACTION_BAR_BOTTOM, TAB_BAR_CLEARANCE } from '../../constants/layout';
+import {
+  SELECTION_BAR_CLEARANCE,
+  STACKED_BAR_OFFSET,
+  TAB_BAR_CLEARANCE,
+} from '../../constants/layout';
+import SelectionBar from '../../components/SelectionBar';
 import direction from '../../assets/images/Direction.png'; // @ts-ignore
 import illustration from '../../assets/images/Illustration.png';
 import NoteCardPreview from '../../components/NoteCardPreview';
@@ -182,6 +187,7 @@ export default function HomeScreen() {
   );
   const pinnedCount = pinnedNotes.length;
   const regularCount = regularNotes.length;
+  const selectionActive = selectedNotes.length > 0 || selectedPins.length > 0;
 
   const getBackground = (color: string) => {
     switch (color) {
@@ -261,7 +267,9 @@ export default function HomeScreen() {
           contentContainerStyle={{
             gap: 10,
             padding: 10,
-            paddingBottom: TAB_BAR_CLEARANCE,
+            paddingBottom: selectionActive
+              ? SELECTION_BAR_CLEARANCE
+              : TAB_BAR_CLEARANCE,
           }}
           columnWrapperStyle={{ gap: 10 }}
           keyExtractor={(item, index) => item.id?.toString() ?? String(index)}
@@ -446,47 +454,34 @@ export default function HomeScreen() {
 
       {/* Action buttons for selected notes */}
       {selectedNotes.length > 0 && (
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            padding: 10,
-            position: 'absolute',
-            bottom: ACTION_BAR_BOTTOM,
-            width: '100%',
-          }}
-        >
-          <TouchableOpacity onPress={pinSelected}>
-            <Text style={{ color: 'green', fontSize: 20 }}>Pin</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={finishedNote}>
-            <Text style={{ color: 'green', fontSize: 20 }}>Finished</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={deleteSelected}>
-            <Text style={{ color: 'red', fontSize: 20 }}>Delete</Text>
-          </TouchableOpacity>
-        </View>
+        <SelectionBar
+          actions={[
+            { label: 'Pin', color: 'green', onPress: pinSelected },
+            { label: 'Finished', color: 'green', onPress: finishedNote },
+            {
+              label: 'Delete',
+              color: 'red',
+              onPress: deleteSelected,
+              destructive: true,
+            },
+          ]}
+        />
       )}
 
       {/* Action buttons for selected pinned notes */}
       {selectedPins.length > 0 && (
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            padding: 10,
-            position: 'absolute',
-            bottom: ACTION_BAR_BOTTOM,
-            width: '100%',
-          }}
-        >
-          <TouchableOpacity onPress={pinSelectedPin}>
-            <Text style={{ color: 'green', fontSize: 20 }}>Unpin</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={deleteSelectedPin}>
-            <Text style={{ color: 'red', fontSize: 20 }}>Delete</Text>
-          </TouchableOpacity>
-        </View>
+        <SelectionBar
+          bottom={selectedNotes.length > 0 ? STACKED_BAR_OFFSET : undefined}
+          actions={[
+            { label: 'Unpin', color: 'green', onPress: pinSelectedPin },
+            {
+              label: 'Delete',
+              color: 'red',
+              onPress: deleteSelectedPin,
+              destructive: true,
+            },
+          ]}
+        />
       )}
     </SafeAreaView>
   );

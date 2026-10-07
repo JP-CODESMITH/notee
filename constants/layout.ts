@@ -12,3 +12,12 @@ export const TAB_BAR_CLEARANCE = 120;
 
 /** `bottom` offset for floating action bars so they sit above the tab bar. */
 export const ACTION_BAR_BOTTOM = 108;
+
+/**
+ * Bottom padding for scrollable content while a selection bar is visible,
+ * so the last row never slides underneath the docked toolbar.
+ */
+export const SELECTION_BAR_CLEARANCE = TAB_BAR_CLEARANCE + 84;
+
+/** Vertical offset of a second stacked selection bar. */
+export const STACKED_BAR_OFFSET = ACTION_BAR_BOTTOM + 80;
