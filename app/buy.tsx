@@ -7,8 +7,6 @@ import {
   Alert,
   FlatList,
   Image,
-  ImageBackground,
-  ImageComponent,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
@@ -124,7 +122,8 @@ export default function BuyScreen() {
               placeholder="Enter your Todo Title"
               style={[styles.titleInput]}
               value={input}
-              numberOfLines={2}
+              numberOfLines={3}
+
               focusable
               onChangeText={setInput}
               maxLength={40}
@@ -212,7 +211,7 @@ export default function BuyScreen() {
               fontFamily: 'InterRegular',
             }}
           >
-            Last edited on 19:30
+            Last edited : just now
           </Text>
         </View>
         <View style={styles.footerRight}>
@@ -544,6 +543,7 @@ const styles = StyleSheet.create({
   titleInput: {
     fontSize: 40,
     fontFamily: 'InterBold',
+    fontWeight: 'bold',
   },
   todoText: {
     marginLeft: 10,

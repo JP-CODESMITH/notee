@@ -230,11 +230,13 @@ export default function GuidanceScreen() {
               style={{
                 fontSize: 40,
                 backgroundColor: colourd,
-                fontFamily: 'InterRegular',
+                fontFamily: 'InterBold',
+                fontWeight: 'bold',
               }}
               value={input}
               onChangeText={setInput}
               maxLength={40}
+              numberOfLines={2}
               onSubmitEditing={() => {
                 setTitle(input);
                 setInput('');
@@ -392,7 +394,7 @@ export default function GuidanceScreen() {
                 fontFamily: 'InterRegular',
               }}
             >
-              Last edited on 19:30
+              Last edited : just now
             </Text>
           </View>
           <View style={styles.footerRight}>
@@ -727,7 +729,7 @@ const styles = StyleSheet.create({
     shadowRadius: 1,
     elevation: 0.5,
     shadowColor: 'black',
-    width: "100%",
+    width: '100%',
   },
   footerLeft: {
     width: '55.5%',

@@ -1,5 +1,6 @@
 import Screen from '@/components/modal';
-import { Ionicons, Entypo, FontAwesome } from '@expo/vector-icons';
+import { Entypo, FontAwesome, Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
@@ -7,20 +8,18 @@ import {
   Alert,
   FlatList,
   Image,
-  KeyboardAvoidingView,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  Modal,
 } from 'react-native';
-import { Checkbox, Divider } from 'react-native-paper'; // ✅ Paper Checkbox
-import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import ill from '../assets/images/ill.png';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import { Divider } from 'react-native-paper'; // ✅ Paper Checkbox
+import { SafeAreaView } from 'react-native-safe-area-context';
+import ill from '../assets/images/ill.png';
 export default function BuyScreen() {
   const router = useRouter();
   const [modal, setModal] = useState(false);
@@ -600,7 +599,7 @@ export default function BuyScreen() {
               fontFamily: 'InterRegular',
             }}
           >
-            Last edited on 19:30
+            Last edited : just now
           </Text>
         </View>
         <View style={styles.footerRight}>
@@ -646,7 +645,7 @@ export default function BuyScreen() {
                 justifyContent: 'space-between',
                 marginLeft: 5,
                 maxHeight: 20,
-                height: 20
+                height: 20,
               }}
               refreshing={false}
               renderItem={({ item }) => (
@@ -941,6 +940,7 @@ const styles = StyleSheet.create({
   titleInput: {
     fontSize: 40,
     fontFamily: 'InterBold',
+    fontWeight: 'bold',
   },
   todoText: {
     marginLeft: 10,
@@ -987,13 +987,13 @@ const styles = StyleSheet.create({
   scroll: { backgroundColor: 'white' },
   footer: {
     height: 60,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     shadowOpacity: 0.25,
     shadowRadius: 1,
     elevation: 0.5,
-    shadowColor: "black",
+    shadowColor: 'black',
   },
   footerLeft: {
     width: '55.5555556%',

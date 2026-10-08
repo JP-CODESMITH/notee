@@ -97,7 +97,7 @@ export default function News() {
           <TouchableHighlight
             style={{
               width: '100%',
-              minHeight: 75,
+              maxHeight: 75,
               backgroundColor: '#6A3EA1',
               borderRadius: 15,
             }}
@@ -109,7 +109,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                minHeight: 75,
+                maxHeight: 75,
               }}
             >
               <View
@@ -137,7 +137,7 @@ export default function News() {
               <View
                 style={{
                   width: '80%',
-                  height: '100%',
+                  height: '100%', 
                   justifyContent: 'center',
                 }}
               >
@@ -178,7 +178,7 @@ export default function News() {
           <TouchableOpacity
             style={{
               width: '100%',
-              minHeight: 75,
+              maxHeight: 75,
               backgroundColor: '#60D889',
               borderRadius: 15,
             }}
@@ -190,7 +190,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                minHeight: 75,
+                maxHeight: 75,
               }}
             >
               <View
@@ -259,7 +259,7 @@ export default function News() {
           <TouchableHighlight
             style={{
               width: '100%',
-              minHeight: 75,
+              maxHeight: 75,
               backgroundColor: '#F8C715',
               borderRadius: 15,
             }}
@@ -271,7 +271,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                minHeight: 75,
+                maxHeight: 75,
               }}
             >
               <View
@@ -340,7 +340,7 @@ export default function News() {
           <TouchableHighlight
             style={{
               width: '100%',
-              minHeight: 75,
+              maxHeight: 75,
               backgroundColor: '#CE3A54',
               borderRadius: 15,
             }}
@@ -352,7 +352,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                minHeight: 75,
+                maxHeight: 75,
               }}
             >
               <View
@@ -421,7 +421,7 @@ export default function News() {
           <TouchableHighlight
             style={{
               width: '100%',
-              minHeight: 75,
+              maxHeight: 75,
               backgroundColor: '#DEDC52',
               borderRadius: 15,
             }}
@@ -433,7 +433,7 @@ export default function News() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 alignContent: 'center',
-                minHeight: 75,
+                maxHeight: 75,
               }}
             >
               <View

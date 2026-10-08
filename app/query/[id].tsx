@@ -1,36 +1,36 @@
 import Screen from '@/components/modal';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import {
-  Alert,
-  FlatList,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    FlatList,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { Checkbox, Divider } from 'react-native-paper';
 import {
-  actions,
-  RichEditor,
-  RichToolbar,
+    actions,
+    RichEditor,
+    RichToolbar,
 } from 'react-native-pell-rich-editor';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import RoutineC from '../../components/routineC';
 import type { ChecklistItem } from '../../lib/notes';
 import {
-  persistField as persistNoteField,
-  persistRich as persistNoteRich,
-  removeNote as removeNoteById,
+    persistField as persistNoteField,
+    persistRich as persistNoteRich,
+    removeNote as removeNoteById,
 } from '../../lib/notes';
 //@ts-config
 import ill from '../../assets/images/ill.png';
@@ -70,7 +70,7 @@ export default function BuyScreen() {
   const [todos, setTodos] = useState<ChecklistItem[]>([]);
 
   const [todo, setTodo] = useState<Todo[]>([]);
-  
+
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [show, setShow] = useState(false);
 
@@ -179,9 +179,7 @@ export default function BuyScreen() {
   }, [id]);
 
   // ✅ NEW: Function to save updated todos back to AsyncStorage
-  const updateTodoInStorage = async (
-    updatedTodos: ChecklistItem[],
-  ) => {
+  const updateTodoInStorage = async (updatedTodos: ChecklistItem[]) => {
     try {
       const dbString = await AsyncStorage.getItem('notesDB');
       const db = dbString ? JSON.parse(dbString) : {};
@@ -372,7 +370,6 @@ export default function BuyScreen() {
       console.error('Error saving goals:', e);
     }
   };
-
 
   const onchange = (_e: any, selectedDate?: Date) => {
     if (selectedDate) setDate(selectedDate);
@@ -650,17 +647,24 @@ export default function BuyScreen() {
         {String(type) === 'guidance' ? (
           <View style={{ padding: 0 }}>
             {note.image ? (
-              <Image source={{ uri: note.image }} style={{ height: 200, width: '100%' }} />
+              <Image
+                source={{ uri: note.image }}
+                style={{ height: 200, width: '100%' }}
+              />
             ) : null}
             <TouchableOpacity
               accessibilityRole="button"
-              accessibilityLabel={note.image ? 'Change cover image' : 'Add cover image'}
+              accessibilityLabel={
+                note.image ? 'Change cover image' : 'Add cover image'
+              }
               style={styles.addBtn}
               onPress={async () => {
                 const uri = await pickImage();
                 if (uri) {
                   setImage(uri);
-                  setNote((prev: any) => (prev ? { ...prev, image: uri } : prev));
+                  setNote((prev: any) =>
+                    prev ? { ...prev, image: uri } : prev,
+                  );
                   await persistField('image', uri);
                 }
               }}
@@ -1015,7 +1019,7 @@ export default function BuyScreen() {
               fontFamily: 'InterRegular',
             }}
           >
-            Last edited on 19:30
+            Last edited : just now
           </Text>
         </View>
         <View style={styles.footerRight}>
