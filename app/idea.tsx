@@ -25,6 +25,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ill from '../assets/images/ill.png';
 import Screen from '../components/modal';
+import { formatLastEdited } from '../lib/notes';
 
 export default function NotionLikeEditor() {
   const richText = useRef<RichEditor | null>(null);
@@ -42,6 +43,7 @@ export default function NotionLikeEditor() {
   const [linkVisible, setLinkVisible] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
+  const [lastEdited, setLastEdited] = useState<number | null>(null);
 
   const colours = [
     { id: 1, colour: '#C8C5CB' },
@@ -63,14 +65,17 @@ export default function NotionLikeEditor() {
 
       console.log(content);
 
+      const now = Date.now();
       const newNote = {
-        id: Date.now(),
+        id: now,
         type: 'idea',
         title,
         rich: html || content, // ✅ prefer editor's content
         pin: pinned,
         finished: finish || false,
         backgroudcolor: colourd,
+        createdAt: now,
+        updatedAt: now,
       };
 
       db.idea.push(newNote);
@@ -267,7 +272,10 @@ export default function NotionLikeEditor() {
                 style={[styles.editor, { backgroundColor: colourd }]}
                 placeholder="Start writing..."
                 initialHeight={300}
-                onChange={(text) => setContent(text)} // ✅ save html to state
+                onChange={(text) => {
+                  setContent(text);
+                  setLastEdited(Date.now());
+                }} // ✅ save html to state
                 editorStyle={{
                   backgroundColor: colourd,
                   color: '#000',
@@ -362,7 +370,8 @@ export default function NotionLikeEditor() {
                 fontFamily: 'InterRegular',
               }}
             >
-              Last edited : just now
+              Last edited:{' '}
+              {lastEdited ? formatLastEdited(lastEdited) : 'new note'}
             </Text>
           </View>
           <View style={styles.footerRight}>

@@ -27,6 +27,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import RoutineC from '../../components/routineC';
 import type { ChecklistItem } from '../../lib/notes';
+import { formatLastEdited } from '../../lib/notes';
 import {
     persistField as persistNoteField,
     persistRich as persistNoteRich,
@@ -139,6 +140,7 @@ export default function BuyScreen() {
   const [linkVisible, setLinkVisible] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
+  const [lastEdited, setLastEdited] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchNote = async () => {
@@ -170,6 +172,9 @@ export default function BuyScreen() {
           setFinish(Boolean(foundNote.finished));
           setTodos(Array.isArray(foundNote.rich) ? foundNote.rich : []);
           setTodo(Array.isArray(foundNote.rich) ? foundNote.rich : []);
+          setLastEdited(
+            foundNote.updatedAt ?? foundNote.createdAt ?? null,
+          );
         }
       } catch (error) {
         console.error('Error loading note:', error);
@@ -199,9 +204,14 @@ export default function BuyScreen() {
           if (noteIndex !== -1) {
             // Update the note's rich (todos) array
             db[category][noteIndex].rich = updatedTodos;
+            db[category][noteIndex].updatedAt = Date.now();
 
             // Save back to AsyncStorage
             await AsyncStorage.setItem('notesDB', JSON.stringify(db));
+            setNote((prev: any) =>
+              prev ? { ...prev, updatedAt: Date.now() } : prev,
+            );
+            setLastEdited(Date.now());
             break;
           }
         }
@@ -223,7 +233,11 @@ export default function BuyScreen() {
   ) => {
     const ok = await persistNoteField(id as string, field, value);
     if (ok) {
-      setNote((prev: any) => (prev ? { ...prev, [field]: value } : prev));
+      const now = Date.now();
+      setNote((prev: any) =>
+        prev ? { ...prev, [field]: value, updatedAt: now } : prev,
+      );
+      setLastEdited(now);
     }
     return ok;
   };
@@ -231,6 +245,9 @@ export default function BuyScreen() {
   const persistRoutine = async (next: ChecklistItem[]) => {
     setTodos(next);
     await persistNoteRich(id as string, next);
+    const now = Date.now();
+    setNote((prev: any) => (prev ? { ...prev, updatedAt: now } : prev));
+    setLastEdited(now);
   };
 
   const saveTitle = async (next: string) => {
@@ -410,7 +427,12 @@ export default function BuyScreen() {
 
         if (noteIndex !== -1) {
           db[category][noteIndex].rich = updatedGoals;
+          db[category][noteIndex].updatedAt = Date.now();
           await AsyncStorage.setItem('notesDB', JSON.stringify(db));
+          setNote((prev: any) =>
+            prev ? { ...prev, updatedAt: Date.now() } : prev,
+          );
+          setLastEdited(Date.now());
         }
       }
     } catch (e) {
@@ -594,11 +616,16 @@ export default function BuyScreen() {
                         (n: any) => String(n.id) === String(id),
                       );
                       if (noteIndex !== -1) {
-                        db[category][noteIndex].rich = html; // update the note’s rich text
+                        db[category][noteIndex].rich = html; // update the note's rich text
+                        db[category][noteIndex].updatedAt = Date.now();
                         await AsyncStorage.setItem(
                           'notesDB',
                           JSON.stringify(db),
                         );
+                        setNote((prev: any) =>
+                          prev ? { ...prev, updatedAt: Date.now() } : prev,
+                        );
+                        setLastEdited(Date.now());
                         break;
                       }
                     }
@@ -741,11 +768,16 @@ export default function BuyScreen() {
                         (n: any) => String(n.id) === String(id),
                       );
                       if (noteIndex !== -1) {
-                        db[category][noteIndex].rich = html; // update the note’s rich text
+                        db[category][noteIndex].rich = html; // update the note's rich text
+                        db[category][noteIndex].updatedAt = Date.now();
                         await AsyncStorage.setItem(
                           'notesDB',
                           JSON.stringify(db),
                         );
+                        setNote((prev: any) =>
+                          prev ? { ...prev, updatedAt: Date.now() } : prev,
+                        );
+                        setLastEdited(Date.now());
                         break;
                       }
                     }
@@ -1060,7 +1092,7 @@ export default function BuyScreen() {
               fontFamily: 'InterRegular',
             }}
           >
-            Last edited : just now
+            Last edited: {formatLastEdited(lastEdited ?? note?.updatedAt ?? note?.createdAt)}
           </Text>
         </View>
         <View style={styles.footerRight}>

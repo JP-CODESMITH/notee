@@ -26,6 +26,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ill from '../assets/images/ill.png';
 import Screen from '../components/modal';
+import { formatLastEdited } from '../lib/notes';
 
 export default function GuidanceScreen() {
   const richText = useRef<RichEditor | null>(null);
@@ -44,6 +45,7 @@ export default function GuidanceScreen() {
   const [linkVisible, setLinkVisible] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
+  const [lastEdited, setLastEdited] = useState<number | null>(null);
 
   const colours = [
     { id: 1, colour: '#C8C5CB' },
@@ -65,8 +67,9 @@ export default function GuidanceScreen() {
 
       console.log(content);
 
+      const now = Date.now();
       const newNote = {
-        id: Date.now(),
+        id: now,
         title,
         rich: html || content, // ✅ prefer editor's content
         pin: pinned,
@@ -74,6 +77,8 @@ export default function GuidanceScreen() {
         type: 'guidance',
         finished: finish || false,
         backgroundcolor: colourd,
+        createdAt: now,
+        updatedAt: now,
       };
 
       db.guidance.push(newNote);
@@ -380,7 +385,10 @@ export default function GuidanceScreen() {
                 style={[styles.editor, { backgroundColor: colourd }]}
                 placeholder="Start writing..."
                 initialHeight={300}
-                onChange={(text) => setContent(text)} // ✅ save html to state
+                onChange={(text) => {
+                  setContent(text);
+                  setLastEdited(Date.now());
+                }} // ✅ save html to state
                 editorStyle={{
                   backgroundColor: colourd,
                   color: '#000',
@@ -475,7 +483,8 @@ export default function GuidanceScreen() {
                 fontFamily: 'InterRegular',
               }}
             >
-              Last edited : just now
+              Last edited:{' '}
+              {lastEdited ? formatLastEdited(lastEdited) : 'new note'}
             </Text>
           </View>
           <View style={styles.footerRight}>

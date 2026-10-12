@@ -109,14 +109,17 @@ export default function GoalsScreen() {
 
       console.log(todos);
 
+      const now = Date.now();
       const newNote = {
-        id: Date.now(),
+        id: now,
         title,
         rich: todos, // ✅ prefer editor's content
         pin: pinned,
         finished: finish || false,
         backgroudcolor: colourd || '#ffffff',
         type: 'goals',
+        createdAt: now,
+        updatedAt: now,
       };
       db.goals.push(newNote);
       await AsyncStorage.setItem('notesDB', JSON.stringify(db));
