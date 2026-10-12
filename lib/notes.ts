@@ -36,6 +36,7 @@ export interface Note {
   category?: NoteCategory;
   image?: string | null;
   createdAt?: number;
+  updatedAt?: number;
 }
 
 export type NotesDB = Record<NoteCategory, Note[]>;
@@ -86,6 +87,19 @@ export function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+export function formatLastEdited(ts?: number): string {
+  if (!ts) return 'just now';
+  const diff = Date.now() - ts;
+  if (diff < 60 * 1000) return 'just now';
+  const mins = Math.floor(diff / (60 * 1000));
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(ts).toLocaleDateString();
+}
+
 export function searchableText(n: Note): string {
   return `${n.title ?? ''} ${stripHtml(getRichText(n))}`.toLowerCase();
 }
@@ -108,6 +122,8 @@ export async function loadDB(): Promise<NotesDB> {
         type: getCategory(n),
         category: undefined,
         backgroundColor: getBackgroundColor(n),
+        createdAt: typeof n.createdAt === 'number' ? n.createdAt : undefined,
+        updatedAt: typeof n.updatedAt === 'number' ? n.updatedAt : undefined,
       }));
     }
     return out;
@@ -132,6 +148,13 @@ export async function persistNotes(notes: Note[]): Promise<void> {
       type: getCategory(n),
       category: undefined,
       backgroundColor: getBackgroundColor(n),
+      createdAt: typeof n.createdAt === 'number' ? n.createdAt : Date.now(),
+      updatedAt:
+        typeof n.updatedAt === 'number'
+          ? n.updatedAt
+          : typeof n.createdAt === 'number'
+            ? n.createdAt
+            : Date.now(),
     };
     db[clean.type as NoteCategory].push(clean);
   }
@@ -224,23 +247,34 @@ export async function persistRich(
       const found = findNoteIndex(db, noteId);
       if (!found) return false;
       db[found.category][found.index].rich = rich;
+      db[found.category][found.index].updatedAt = Date.now();
       await AsyncStorage.setItem('notesDB', JSON.stringify(db));
       return true;
     })) ?? false
   );
 }
 
-/** Persist a scalar field (`pin`, `finished`, `title`, `image`, `backgroundColor`). */
+/** Persist a scalar field (`pin`, `finished`, `title`, `image`, `backgroundColor`, timestamps). */
 export async function persistField(
   noteId: string | number,
-  field: 'pin' | 'finished' | 'title' | 'image' | 'backgroundColor',
-  value: string | boolean | null,
+  field:
+    | 'pin'
+    | 'finished'
+    | 'title'
+    | 'image'
+    | 'backgroundColor'
+    | 'createdAt'
+    | 'updatedAt',
+  value: string | boolean | number | null,
 ): Promise<boolean> {
   return (
     (await withDB(async (db) => {
       const found = findNoteIndex(db, noteId);
       if (!found) return false;
       db[found.category][found.index][field] = value;
+      if (field !== 'updatedAt') {
+        db[found.category][found.index].updatedAt = Date.now();
+      }
       await AsyncStorage.setItem('notesDB', JSON.stringify(db));
       return true;
     })) ?? false
