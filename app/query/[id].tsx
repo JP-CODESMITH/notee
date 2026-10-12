@@ -208,8 +208,15 @@ export default function BuyScreen() {
     }
   };
   const persistField = async (
-    field: 'pin' | 'finished' | 'title' | 'image' | 'backgroundColor',
-    value: string | boolean | null,
+    field:
+      | 'pin'
+      | 'finished'
+      | 'title'
+      | 'image'
+      | 'backgroundColor'
+      | 'createdAt'
+      | 'updatedAt',
+    value: string | boolean | number | null,
   ) => {
     const ok = await persistNoteField(id as string, field, value);
     if (ok) {
@@ -1023,12 +1030,30 @@ export default function BuyScreen() {
           </Text>
         </View>
         <View style={styles.footerRight}>
-          <View style={[styles.box1, { backgroundColor: colourd }]}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Search notes"
+            onPress={() => router.push('/(tabs)/search')}
+            style={[styles.box1, { backgroundColor: colourd }]}
+          >
             <Ionicons name="search" size={24} />
-          </View>
-          <View style={[styles.box1, { backgroundColor: colourd }]}>
-            <Ionicons name="bookmark-outline" size={24} />
-          </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={pinned ? 'Unpin note' : 'Pin note'}
+            onPress={async () => {
+              const next = !pinned;
+              setPinned(next);
+              await persistField('pin', next);
+            }}
+            style={[styles.box1, { backgroundColor: colourd }]}
+          >
+            <Ionicons
+              name={pinned ? 'bookmark' : 'bookmark-outline'}
+              size={24}
+              color={pinned ? '#6A3EA1' : 'black'}
+            />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => setModal(true)}>
             <View style={[styles.box]}>
               <Ionicons

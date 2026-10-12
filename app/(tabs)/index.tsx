@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Link, useFocusEffect } from 'expo-router';
+import { Link, useFocusEffect, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import { Checkbox } from 'react-native-paper';
@@ -16,6 +16,7 @@ import illustration from '../../assets/images/Illustration.png';
 import NoteCardPreview from '../../components/NoteCardPreview';
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [notes, setNotes] = useState<any[]>([]);
   const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
   const [selectedPins, setSelectedPins] = useState<string[]>([]);
@@ -296,7 +297,11 @@ export default function HomeScreen() {
                     >
                       Pinned Notes
                     </Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel="View all pinned notes"
+                      onPress={() => router.push('/(tabs)/search')}
+                    >
                       <Text style={{ color: '#6A3EA1' }}>View all</Text>
                     </TouchableOpacity>
                   </View>
@@ -400,7 +405,11 @@ export default function HomeScreen() {
                     >
                       Interesting Ideas
                     </Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel="View all notes"
+                      onPress={() => router.push('/(tabs)/search')}
+                    >
                       <Text style={{ color: '#6A3EA1' }}>View all</Text>
                     </TouchableOpacity>
                   </View>
