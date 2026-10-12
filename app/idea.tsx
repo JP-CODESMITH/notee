@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -8,6 +9,7 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -37,6 +39,9 @@ export default function NotionLikeEditor() {
   const [modall, setModall] = useState(false);
   const [colourd, setColourd] = useState('white');
   const [content, setContent] = useState('');
+  const [linkVisible, setLinkVisible] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
 
   const colours = [
     { id: 1, colour: '#C8C5CB' },
@@ -113,8 +118,74 @@ export default function NotionLikeEditor() {
         (richText.current as any)?.commandDOM('backColor', 'yellow');
         break;
       default:
-        Alert.alert('Unsupported', `${action} not yet implemented`);
+        break;
     }
+  };
+
+  const launchLibraryForEditor = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission required',
+          'Please grant media library permissions to pick an image.',
+        );
+        return;
+      }
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      richText.current?.insertImage(result.assets[0].uri);
+    }
+  };
+
+  const launchCameraForEditor = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission required',
+          'Please grant camera permissions to take a photo.',
+        );
+        return;
+      }
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      richText.current?.insertImage(result.assets[0].uri);
+    }
+  };
+
+  const chooseEditorImage = () => {
+    Alert.alert('Insert image', 'Choose an image source', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Camera', onPress: () => void launchCameraForEditor() },
+      { text: 'Library', onPress: () => void launchLibraryForEditor() },
+    ]);
+  };
+
+  const insertEditorLink = () => {
+    const url = linkUrl.trim();
+    if (!url) {
+      Alert.alert('Missing URL', 'Please enter a link URL.');
+      return;
+    }
+    const normalized = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+    richText.current?.insertLink(normalized, linkText.trim() || normalized);
+    setLinkUrl('');
+    setLinkText('');
+    setLinkVisible(false);
   };
 
   return (
@@ -238,14 +309,8 @@ export default function NotionLikeEditor() {
                   'setBackgroundColor',
                   'insertLine',
                 ]}
-                onPressAddImage={() =>
-                  richText.current?.insertImage(
-                    'https://placekitten.com/300/200',
-                  )
-                }
-                onPressAddLink={() =>
-                  richText.current?.insertLink('https://google.com', 'Google')
-                }
+                onPressAddImage={chooseEditorImage}
+                onPressAddLink={() => setLinkVisible(true)}
                 onPressAddFile={(action: string) => handleCustomAction(action)}
                 iconMap={{
                   [actions.heading1]: () => (
@@ -609,6 +674,38 @@ export default function NotionLikeEditor() {
             <Text style={{ fontSize: 16, color: 'white' }}>close</Text>
           </TouchableOpacity>
         </View>
+      </Screen>
+      <Screen visible={linkVisible} svisible={setLinkVisible} colour="white">
+        <Text style={{ fontSize: 17, fontWeight: '600', marginBottom: 12 }}>
+          Insert link
+        </Text>
+        <TextInput
+          placeholder="https://example.com"
+          value={linkUrl}
+          onChangeText={setLinkUrl}
+          autoCapitalize="none"
+          keyboardType="url"
+          style={{ backgroundColor: '#F5F3FF', marginBottom: 10 }}
+        />
+        <TextInput
+          placeholder="Link text (optional)"
+          value={linkText}
+          onChangeText={setLinkText}
+          style={{ backgroundColor: '#F5F3FF', marginBottom: 16 }}
+        />
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Insert link"
+          onPress={insertEditorLink}
+          style={{
+            backgroundColor: '#6A3EA1',
+            padding: 14,
+            borderRadius: 30,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: 'white', fontSize: 16 }}>Insert</Text>
+        </TouchableOpacity>
       </Screen>
     </SafeAreaView>
   );

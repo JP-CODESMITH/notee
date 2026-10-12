@@ -41,6 +41,9 @@ export default function GuidanceScreen() {
   const [colourd, setColourd] = useState('white');
   const [content, setContent] = useState('');
   const [image, setImage] = useState<string | null>(null);
+  const [linkVisible, setLinkVisible] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
 
   const colours = [
     { id: 1, colour: '#C8C5CB' },
@@ -118,8 +121,74 @@ export default function GuidanceScreen() {
         (richText.current as any)?.commandDOM('backColor', 'yellow');
         break;
       default:
-        Alert.alert('Unsupported', `${action} not yet implemented`);
+        break;
     }
+  };
+
+  const launchLibraryForEditor = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission required',
+          'Please grant media library permissions to pick an image.',
+        );
+        return;
+      }
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      richText.current?.insertImage(result.assets[0].uri);
+    }
+  };
+
+  const launchCameraForEditor = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission required',
+          'Please grant camera permissions to take a photo.',
+        );
+        return;
+      }
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    if (!result.canceled) {
+      richText.current?.insertImage(result.assets[0].uri);
+    }
+  };
+
+  const chooseEditorImage = () => {
+    Alert.alert('Insert image', 'Choose an image source', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Camera', onPress: () => void launchCameraForEditor() },
+      { text: 'Library', onPress: () => void launchLibraryForEditor() },
+    ]);
+  };
+
+  const insertEditorLink = () => {
+    const url = linkUrl.trim();
+    if (!url) {
+      Alert.alert('Missing URL', 'Please enter a link URL.');
+      return;
+    }
+    const normalized = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+    richText.current?.insertLink(normalized, linkText.trim() || normalized);
+    setLinkUrl('');
+    setLinkText('');
+    setLinkVisible(false);
   };
 
   const pickImage = async () => {
@@ -250,37 +319,55 @@ export default function GuidanceScreen() {
               </Text>
               {!image ? (
                 <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="Add cover image"
                   onPress={() => {
                     Alert.alert(
                       'Pick image',
-                      'do you want to pick an image from the device',
+                      'Do you want to pick a cover image from the device?',
                       [
                         {
                           text: 'Cancel',
-                          onPress: () => {
-                            console.log('didnt save routine');
-                          },
                           style: 'cancel',
                         },
                         {
                           text: 'Camera',
-                          onPress: () => {
-                            console.log('take photo');
-                            takePhoto();
-                          },
+                          onPress: () => void takePhoto(),
                         },
                         {
-                          text: 'library',
-                          onPress: () => {
-                            console.log('OK Pressed');
-                            pickImage();
-                          },
+                          text: 'Library',
+                          onPress: () => void pickImage(),
                         },
                       ],
                     );
                   }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderWidth: 1,
+                    borderStyle: 'dashed',
+                    borderColor: '#6A3EA1',
+                    borderRadius: 12,
+                    paddingVertical: 24,
+                    marginTop: 12,
+                    gap: 8,
+                  }}
                 >
-                  <MaterialIcons name="image-search" size={400} color="grey" />
+                  <MaterialIcons
+                    name="image-search"
+                    size={28}
+                    color="#6A3EA1"
+                  />
+                  <Text
+                    style={{
+                      color: '#6A3EA1',
+                      fontSize: 16,
+                      fontFamily: 'InterRegular',
+                    }}
+                  >
+                    Add cover image
+                  </Text>
                 </TouchableOpacity>
               ) : (
                 <Image
@@ -335,14 +422,8 @@ export default function GuidanceScreen() {
                   'setBackgroundColor',
                   'insertLine',
                 ]}
-                onPressAddImage={() =>
-                  richText.current?.insertImage(
-                    'https://placekitten.com/300/200',
-                  )
-                }
-                onPressAddLink={() =>
-                  richText.current?.insertLink('https://google.com', 'Google')
-                }
+                onPressAddImage={chooseEditorImage}
+                onPressAddLink={() => setLinkVisible(true)}
                 onPressAddFile={(action: string) => handleCustomAction(action)}
                 iconMap={{
                   [actions.heading1]: () => (
@@ -706,6 +787,38 @@ export default function GuidanceScreen() {
             <Text style={{ fontSize: 16, color: 'white' }}>close</Text>
           </TouchableOpacity>
         </View>
+      </Screen>
+      <Screen visible={linkVisible} svisible={setLinkVisible} colour="white">
+        <Text style={{ fontSize: 17, fontWeight: '600', marginBottom: 12 }}>
+          Insert link
+        </Text>
+        <TextInput
+          placeholder="https://example.com"
+          value={linkUrl}
+          onChangeText={setLinkUrl}
+          autoCapitalize="none"
+          keyboardType="url"
+          style={{ backgroundColor: '#F5F3FF', marginBottom: 10 }}
+        />
+        <TextInput
+          placeholder="Link text (optional)"
+          value={linkText}
+          onChangeText={setLinkText}
+          style={{ backgroundColor: '#F5F3FF', marginBottom: 16 }}
+        />
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Insert link"
+          onPress={insertEditorLink}
+          style={{
+            backgroundColor: '#6A3EA1',
+            padding: 14,
+            borderRadius: 30,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: 'white', fontSize: 16 }}>Insert</Text>
+        </TouchableOpacity>
       </Screen>
     </SafeAreaView>
   );

@@ -136,6 +136,9 @@ export default function BuyScreen() {
   };
   const richText = useRef<RichEditor | null>(null);
   const [image, setImage] = useState('');
+  const [linkVisible, setLinkVisible] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
 
   useEffect(() => {
     const fetchNote = async () => {
@@ -297,8 +300,45 @@ export default function BuyScreen() {
         (richText.current as any)?.commandDOM('backColor', 'yellow');
         break;
       default:
-        Alert.alert('Unsupported', `${action} not yet implemented`);
+        break;
     }
+  };
+
+  const chooseEditorImage = () => {
+    Alert.alert('Insert image', 'Choose an image source', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Camera',
+        onPress: async () => {
+          const imageUri = await takePhoto();
+          if (imageUri) {
+            (richText.current as any)?.insertImage(imageUri, 'width: 100%');
+          }
+        },
+      },
+      {
+        text: 'Library',
+        onPress: async () => {
+          const imageUri = await pickImage();
+          if (imageUri) {
+            (richText.current as any)?.insertImage(imageUri, 'width: 100%');
+          }
+        },
+      },
+    ]);
+  };
+
+  const insertEditorLink = () => {
+    const url = linkUrl.trim();
+    if (!url) {
+      Alert.alert('Missing URL', 'Please enter a link URL.');
+      return;
+    }
+    const normalized = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+    richText.current?.insertLink(normalized, linkText.trim() || normalized);
+    setLinkUrl('');
+    setLinkText('');
+    setLinkVisible(false);
   };
   const pickImage = async () => {
     // Request media library permissions on iOS and Android
@@ -609,12 +649,8 @@ export default function BuyScreen() {
                 'setBackgroundColor',
                 'insertLine',
               ]}
-              onPressAddImage={() =>
-                richText.current?.insertImage('https://placekitten.com/300/200')
-              }
-              onPressAddLink={() =>
-                richText.current?.insertLink('https://google.com', 'Google')
-              }
+              onPressAddImage={chooseEditorImage}
+              onPressAddLink={() => setLinkVisible(true)}
               onPressAddFile={(action: string) => handleCustomAction(action)}
               iconMap={{
                 [actions.heading1]: () => (
@@ -796,9 +832,7 @@ export default function BuyScreen() {
                   ],
                 );
               }}
-              onPressAddLink={() =>
-                richText.current?.insertLink('https://google.com', 'Google')
-              }
+              onPressAddLink={() => setLinkVisible(true)}
               onPressAddFile={(action: any) => handleCustomAction(action)}
               iconMap={{
                 [actions.heading1]: () => (
@@ -1410,6 +1444,48 @@ export default function BuyScreen() {
             <Text style={{ fontSize: 16, color: 'white' }}>close</Text>
           </TouchableOpacity>
         </View>
+      </Screen>
+      <Screen visible={linkVisible} svisible={setLinkVisible} colour="white">
+        <Text style={{ fontSize: 17, fontWeight: '600', marginBottom: 12 }}>
+          Insert link
+        </Text>
+        <TextInput
+          placeholder="https://example.com"
+          value={linkUrl}
+          onChangeText={setLinkUrl}
+          autoCapitalize="none"
+          keyboardType="url"
+          style={{
+            borderBottomWidth: 1,
+            padding: 8,
+            fontSize: 16,
+            marginBottom: 10,
+          }}
+        />
+        <TextInput
+          placeholder="Link text (optional)"
+          value={linkText}
+          onChangeText={setLinkText}
+          style={{
+            borderBottomWidth: 1,
+            padding: 8,
+            fontSize: 16,
+            marginBottom: 16,
+          }}
+        />
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Insert link"
+          onPress={insertEditorLink}
+          style={{
+            backgroundColor: '#6A3EA1',
+            padding: 14,
+            borderRadius: 30,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: 'white', fontSize: 16 }}>Insert</Text>
+        </TouchableOpacity>
       </Screen>
     </SafeAreaView>
   );
